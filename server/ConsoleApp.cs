@@ -22,6 +22,7 @@ namespace LegacyOfficeConverter
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
             int queue = 100;
             bool help = false;
+            string ocrPath = @"C:\Program Files (x86)\OCR Console\OcrCon.exe";;
 
             // Setup command line params
             var p = new OptionSet() {
@@ -33,6 +34,8 @@ namespace LegacyOfficeConverter
                     (int v) => port = v },
                 { "q|queue=",  "the listener queue {SIZE}; default: " + queue, 
                     (int v) => queue = v },
+                { "o|ocr=",  "the ocr console path, if custom",
+                    v => ocrPath = v },
                 { "h|help",  "show this message and exit", 
                     v => help = v != null },
             };
@@ -65,6 +68,7 @@ namespace LegacyOfficeConverter
             Console.WriteLine("  addr : " + addr);
             Console.WriteLine("  port : " + port);
             Console.WriteLine("  queue: " + queue);
+            Console.WriteLine("  ocr console: " + @ocrPath);
             Console.WriteLine("Try 'LegacyOfficeConverter --help' for information on options.");
             Console.WriteLine();
             Console.WriteLine("Starting conversion server...");
@@ -72,7 +76,7 @@ namespace LegacyOfficeConverter
             Console.WriteLine();
 
             // Start the conversion server in another thread
-            Server soc = new Server(addr, port, new DirectoryInfo(cache), queue);
+            Server soc = new Server(addr, port, new DirectoryInfo(cache), queue, ocrPath);
             Thread t = new Thread(new ThreadStart(soc.Start));
             t.Start();
 

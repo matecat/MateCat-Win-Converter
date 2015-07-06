@@ -17,16 +17,18 @@ namespace LegacyOfficeConverter
         private int port;
         private DirectoryInfo tmpDir;
         private int queueSize;
+        private string OCRConsolePath;
 
         private bool running = true;
         private bool stopped = false;
 
-        public Server(IPAddress address, int port, DirectoryInfo tmpDir, int queueSize)
+        public Server(IPAddress address, int port, DirectoryInfo tmpDir, int queueSize, string OCRConsolePath)
         {
             this.address = address;
             this.port = port;
             this.tmpDir = tmpDir;
             this.queueSize = queueSize;
+            this.OCRConsolePath = OCRConsolePath;
         }
 
         public void Start()
@@ -35,7 +37,7 @@ namespace LegacyOfficeConverter
             stopped = false;
 
             Object fileSystemLock = new Object();
-            FileConverter fileConverter = new FileConverter();
+            FileConverter fileConverter = new FileConverter(OCRConsolePath);
 
             Socket server = null;
             EndPoint endPoint = new IPEndPoint(address, port);

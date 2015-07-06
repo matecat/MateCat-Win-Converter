@@ -17,6 +17,10 @@ class LegacyOfficeConverter {
         'pot' => 6, // Legacy PowerPoint Template
         'pps' => 7, // Legacy PowerPoint slideshow
         'rtf' => 8,
+        'pdf' => 9,
+        'png' => 10,
+        'jpg' => 11,
+        'tiff' => 12
     );
 
     private $host;

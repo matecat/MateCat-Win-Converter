@@ -5,6 +5,9 @@
  * receives the converted file and saves it in the output directory.
  */
 
+//error_reporting(E_ALL);
+//ini_set('display_errors', 1);
+
 require 'config.php';
 require '../LegacyOfficeConverter.php';
 
@@ -26,7 +29,15 @@ foreach (scandir(INPUT_FOLDER_PATH) as $fileName) {
         $converted = $converter->convert($fileType, file_get_contents($filePath));
         echo 'converted!<br>';
 
-        $convertedFilePath = OUTPUT_FOLDER_PATH . DIRECTORY_SEPARATOR . $fileName . 'x';
+        // TODO Check the output extension in the Matecat extensions table
+        if (in_array($fileType, array(9, 10, 11, 12))) {
+            $info = pathinfo($fileName);
+            $fileName = $info['filename'] . '.docx';
+        }
+        else {
+            $fileName .= 'x';
+        }
+        $convertedFilePath = OUTPUT_FOLDER_PATH . DIRECTORY_SEPARATOR . $fileName;
         file_put_contents($convertedFilePath, $converted);
         echo "converted file saved in $convertedFilePath<br>";
 
