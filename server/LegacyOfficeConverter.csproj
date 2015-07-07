@@ -59,12 +59,15 @@
     <Compile Include="Client.cs" />
     <Compile Include="Errors.cs" />
     <Compile Include="FileTypes.cs" />
+    <Compile Include="FormatConverterPool.cs" />
+    <Compile Include="Interface1.cs" />
     <Compile Include="Options.cs" />
     <Compile Include="ProtocolException.cs" />
     <Compile Include="Server.cs" />
     <Compile Include="FileConverter.cs" />
     <Compile Include="ConsoleApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WordConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

@@ -14,6 +14,41 @@ namespace LegacyOfficeConverter
     {
         static void Main(string[] args)
         {
+            FormatConverterPool<WordConverter> w = new FormatConverterPool<WordConverter>(10);
+            (new Thread(() => {
+                int i = 1;
+                Console.WriteLine(i + ": start");
+                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\"+ i + ".doc");
+                Console.WriteLine(i + ": end");
+            })).Start();
+            (new Thread(() => {
+                int i = 2;
+                Console.WriteLine(i + ": start");
+                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
+                Console.WriteLine(i + ": end");
+            })).Start();
+            (new Thread(() => {
+                int i = 3;
+                Console.WriteLine(i + ": start");
+                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
+                Console.WriteLine(i + ": end");
+            })).Start();
+            (new Thread(() => {
+                int i = 4;
+                Console.WriteLine(i + ": start");
+                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
+                Console.WriteLine(i + ": end");
+            })).Start();
+            (new Thread(() => {
+                int i = 5;
+                Console.WriteLine(i + ": start");
+                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
+                Console.WriteLine(i + ": end");
+            })).Start();
+            Thread.Sleep(10000);
+            w.Dispose();
+            return;
+
             String cache = Path.GetTempPath();
             IPAddress addr = GuessLocalIPv4();
             // If port is zero socket will attach on the first available port between 1024 and 5000
