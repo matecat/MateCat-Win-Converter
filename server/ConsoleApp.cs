@@ -2,11 +2,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace LegacyOfficeConverter
 {
@@ -14,50 +11,16 @@ namespace LegacyOfficeConverter
     {
         static void Main(string[] args)
         {
-            FormatConverterPool<WordConverter> w = new FormatConverterPool<WordConverter>(10);
-            (new Thread(() => {
-                int i = 1;
-                Console.WriteLine(i + ": start");
-                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\"+ i + ".doc");
-                Console.WriteLine(i + ": end");
-            })).Start();
-            (new Thread(() => {
-                int i = 2;
-                Console.WriteLine(i + ": start");
-                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
-                Console.WriteLine(i + ": end");
-            })).Start();
-            (new Thread(() => {
-                int i = 3;
-                Console.WriteLine(i + ": start");
-                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
-                Console.WriteLine(i + ": end");
-            })).Start();
-            (new Thread(() => {
-                int i = 4;
-                Console.WriteLine(i + ": start");
-                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
-                Console.WriteLine(i + ": end");
-            })).Start();
-            (new Thread(() => {
-                int i = 5;
-                Console.WriteLine(i + ": start");
-                w.Convert(@"C:\Users\Giuseppe\Desktop\doc test\" + i + ".doc");
-                Console.WriteLine(i + ": end");
-            })).Start();
-            Thread.Sleep(10000);
-            w.Dispose();
-            return;
-
-            String cache = Path.GetTempPath();
+            // Here are all the defaults for command line params
+            string cache = Path.GetTempPath();
+            string ocrConsolePath = @"C:\Program Files (x86)\OCR Console\OcrCon.exe";
             IPAddress addr = GuessLocalIPv4();
-            // If port is zero socket will attach on the first available port between 1024 and 5000
-            // (see https://goo.gl/t4MBUr)
+            // If port is zero socket will attach on the first available port between 1024 and 5000 (see https://goo.gl/t4MBUr)
             int port = 11000;
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
             int queue = 100;
+            int convertersPoolSize = 3;
             bool help = false;
-            string ocrPath = @"C:\Program Files (x86)\OCR Console\OcrCon.exe";;
 
             // Setup command line params
             var p = new OptionSet() {
@@ -70,7 +33,9 @@ namespace LegacyOfficeConverter
                 { "q|queue=",  "the listener queue {SIZE}; default: " + queue, 
                     (int v) => queue = v },
                 { "o|ocr=",  "the ocr console path, if custom",
-                    v => ocrPath = v },
+                    v => ocrConsolePath = v },
+                { "m|parallelism=",  "the {NUMBER} of Office instances to launch at startup in order to support parallel conversions; default: " + convertersPoolSize,
+                    (int v) => convertersPoolSize = v },
                 { "h|help",  "show this message and exit", 
                     v => help = v != null },
             };
@@ -96,14 +61,15 @@ namespace LegacyOfficeConverter
                 return;
             }
 
-            // Ok, start the real server
+            // Greet the user and recap params
             Console.WriteLine("Hello sir.");
             Console.WriteLine("Running LegacyOfficeConverter with options:");
             Console.WriteLine("  cache: " + cache);
             Console.WriteLine("  addr : " + addr);
             Console.WriteLine("  port : " + port);
             Console.WriteLine("  queue: " + queue);
-            Console.WriteLine("  ocr console: " + @ocrPath);
+            Console.WriteLine("  ocr console: " + ocrConsolePath);
+            Console.WriteLine("  parallelism: " + convertersPoolSize);
             Console.WriteLine("Try 'LegacyOfficeConverter --help' for information on options.");
             Console.WriteLine();
             Console.WriteLine("Starting conversion server...");
@@ -111,24 +77,26 @@ namespace LegacyOfficeConverter
             Console.WriteLine();
 
             // Start the conversion server in another thread
-            Server soc = new Server(addr, port, new DirectoryInfo(cache), queue, ocrPath);
-            Thread t = new Thread(new ThreadStart(soc.Start));
+            Server server = new Server(addr, port, new DirectoryInfo(cache), queue, convertersPoolSize, ocrConsolePath);
+            Thread t = new Thread(new ThreadStart(server.Start));
             t.Start();
 
-            // Press any key to stop the server
+            // Press ESC to stop the server. 
+            // If others keys are pressed, remember to the user that only ESC works.
             while (Console.ReadKey(true).Key != ConsoleKey.Escape)
             {
                 Console.WriteLine("Press ESC to stop the server.");
             }
 
+            // ESC key pressed, shutdown everything and say goodbye
             Console.WriteLine();
             Console.WriteLine("ESC key pressed.");
             Console.WriteLine("Stopping the server...");
-            soc.Stop();
+            server.Stop();
             Console.WriteLine("Server stopped.");
             Console.WriteLine("Good bye sir.");
+            // Let the user read the goodbye message
             Thread.Sleep(1000);
-            return;
         }
 
         static void ShowHelp (OptionSet p)

@@ -15,10 +15,10 @@ namespace LegacyOfficeConverter
 
         private Socket socket;
         private DirectoryInfo tmpDir;
-        private FileConverter fileConverter;
+        private ConvertersRouter fileConverter;
         private Object fileSystemLock;
 
-        public Client(Socket socket, DirectoryInfo tmpDir, FileConverter fileConverter, Object fileSystemLock)
+        public Client(Socket socket, DirectoryInfo tmpDir, ConvertersRouter fileConverter, Object fileSystemLock)
         {
             this.socket = socket;
             this.tmpDir = tmpDir;

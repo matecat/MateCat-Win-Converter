@@ -7,30 +7,38 @@ using System.Threading.Tasks;
 
 namespace LegacyOfficeConverter
 {
-    class FormatConverterPool<T>:IDisposable where T:IFormatConverter, new()
+    class PooledConverter<T>: IConverter where T:IConverter, new()
     {
-        private BlockingCollection<T> instances;
+        private BlockingCollection<T> pool;
 
         private bool disposed = false;
 
 
-        public FormatConverterPool(int instancesCount)
+        public PooledConverter(int instancesCount)
         {
-            instances = new BlockingCollection<T>();
+            pool = new BlockingCollection<T>();
             for (int i = 0; i < instancesCount; i++)
             {
-                //T instance = (T)Activator.CreateInstance(typeof(T), new object[] {});
-                //instances.Add(instance);
-                instances.Add(new T());
+                pool.Add(new T());
             }
         }
 
         public string Convert(string path)
         {
-            T instance = instances.Take();
-            string output = instance.Convert(path);
-            instances.Add(instance);
-            return output;
+            T instance = default(T);
+            try
+            {
+                instance = pool.Take();
+                string convertedFilePath = instance.Convert(path);
+                return convertedFilePath;
+            }
+            finally
+            {
+                if (!EqualityComparer<T>.Default.Equals(instance, default(T)))
+                {
+                    pool.Add(instance);
+                }
+            }
         }
 
         /*
@@ -53,17 +61,17 @@ namespace LegacyOfficeConverter
             if (disposing)
             {
                 T instance;
-                while (instances.TryTake(out instance))
+                while (pool.TryTake(out instance))
                 {
                     instance.Dispose();
                 }
-                instances.Dispose();
+                pool.Dispose();
             }
 
             disposed = true;
         }
 
-        ~FormatConverterPool()
+        ~PooledConverter()
         {
             Dispose(false);
         }

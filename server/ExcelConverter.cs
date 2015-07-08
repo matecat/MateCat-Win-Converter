@@ -1,20 +1,20 @@
-﻿using Microsoft.Office.Interop.Word;
+﻿using Microsoft.Office.Interop.Excel;
 using System;
 using System.Runtime.InteropServices;
 
 namespace LegacyOfficeConverter
 {
-    class WordConverter : IConverter
+    class ExcelConverter : IConverter
     {
-        private Application word;
+        private Application excel;
 
         private bool disposed = false;
 
-        public WordConverter()
+        public ExcelConverter()
         {
-            // Start Word
-            word = new Application();
-            word.Visible = false;
+            // Start Excel
+            excel = new Application();
+            excel.Visible = false;
         }
 
         public string Convert(string path)
@@ -23,35 +23,35 @@ namespace LegacyOfficeConverter
             string pathWithoutExtension = path.Substring(0, lastDotIndex);
 
             string convertedPath = null;
-            lock (word)
+            lock (excel)
             {
-                Document doc = null;
+                Workbook xls = null;
                 try
                 {
-                    doc = word.Documents.Open(FileName: path, ReadOnly: true);
-                    if (doc == null)
+                    xls = excel.Workbooks.Open(Filename: path, ReadOnly: true);
+                    if (xls == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatDocumentDefault);
-                    convertedPath = doc.FullName;
+                    xls.SaveAs(Filename: pathWithoutExtension, FileFormat: XlFileFormat.xlOpenXMLWorkbook);
+                    convertedPath = xls.FullName;
                 }
                 finally
                 {
                     // Whatever happens, always release the COM object created for the document.
                     // .NET should handle COM objects release by itself, but I release them
                     // manually just to be sure. See http://goo.gl/7zv9Hj
-                    if (doc != null)
+                    if (xls != null)
                     {
                         try
                         {
-                            doc.Close(SaveChanges: false);
+                            xls.Close(SaveChanges: false);
                         }
                         catch { }
                         finally
                         {
-                            Marshal.ReleaseComObject(doc);
-                            doc = null;
+                            Marshal.ReleaseComObject(xls);
+                            xls = null;
                         }
                     }
                 }
@@ -81,20 +81,20 @@ namespace LegacyOfficeConverter
 
             try
             {
-                word.Quit(SaveChanges: false);
+                excel.Quit();
             }
             catch (Exception e)
             {
-                Console.WriteLine("WARNING: exception while quitting Word instance. Full error:");
+                Console.WriteLine("WARNING: exception while quitting Excel instance. Full error:");
                 Console.WriteLine(e);
             }
-            Marshal.ReleaseComObject(word);
-            word = null;
+            Marshal.ReleaseComObject(excel);
+            excel = null;
 
             disposed = true;
         }
 
-        ~WordConverter()
+        ~ExcelConverter()
         {
             Dispose(false);
         }
