@@ -8,9 +8,7 @@ namespace LegacyOfficeConverter
         private PooledConverter<WordConverter> wordConverter;
         private PooledConverter<ExcelConverter> excelConverter;
         private PooledConverter<PowerPointConverter> powerPointConverter;
-        private OCRConsole ocrConverter;
-        private PdfConverter pdfConverter;
-
+        private string OCRConsolePath; 
 
         private bool disposed = false;
         
@@ -19,8 +17,7 @@ namespace LegacyOfficeConverter
             wordConverter = new PooledConverter<WordConverter>(poolSize);
             excelConverter = new PooledConverter<ExcelConverter>(poolSize);
             powerPointConverter = new PooledConverter<PowerPointConverter>(poolSize);
-            ocrConverter = new OCRConsole(OCRConsolePath);
-            pdfConverter = new PdfConverter(ocrConverter);
+            this.OCRConsolePath = OCRConsolePath;
         }
 
         public string Convert(string path)
@@ -48,13 +45,13 @@ namespace LegacyOfficeConverter
                     break;
 
                 case ".pdf":
-                    convertedPath = pdfConverter.Convert(path);
+                    convertedPath = new PdfConverter(OCRConsolePath).Convert(path);
                     break; 
 
                 case ".jpg":
                 case ".tiff":
                 case ".png":
-                    convertedPath = ocrConverter.Convert(path);
+                    convertedPath = new OCRConsole(OCRConsolePath).Convert(path);
                     break;
 
                 default:

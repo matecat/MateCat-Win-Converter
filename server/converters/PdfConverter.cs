@@ -10,11 +10,11 @@ namespace LegacyOfficeConverter
     class PdfConverter : IConverter
     {
 
-        private OCRConsole ocrConsole;
+        private string OCRConsolePath;
 
-        public PdfConverter(OCRConsole ocrConsole  = null)
+        public PdfConverter(string OCRConsolePath = null)
         {
-            this.ocrConsole = ocrConsole;
+            this.OCRConsolePath = OCRConsolePath;
         }
 
 
@@ -37,9 +37,9 @@ namespace LegacyOfficeConverter
             if (new PdfAnalyzer(path).IsScanned())
             {
                 // If its scanned, execute an OCR recognition
-                if (this.ocrConsole == null)
-                    throw new Exception("A OCR console has not been specified");
-                return ocrConsole.Convert(path);
+                if (this.OCRConsolePath == null)
+                    throw new Exception("A OCR console path has not been specified");
+                return new OCRConsole(OCRConsolePath).Convert(path);
             }
 
             // If not, convert it through cloudconvert
