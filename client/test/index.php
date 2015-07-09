@@ -12,6 +12,7 @@ require 'config.php';
 require '../LegacyOfficeConverter.php';
 
 ob_implicit_flush(1);
+set_time_limit(5000);
 
 $converter = new LegacyOfficeConverter(CONVERTER_HOST, CONVERTER_PORT);
 

@@ -3,12 +3,13 @@ using System.IO;
 
 namespace LegacyOfficeConverter
 {
-    public class ConvertersRouter : IConverter
+    public class ConvertersRouter : IConverter, IDisposable
     {
         private PooledConverter<WordConverter> wordConverter;
         private PooledConverter<ExcelConverter> excelConverter;
         private PooledConverter<PowerPointConverter> powerPointConverter;
         private OCRConsole ocrConverter;
+        private PdfConverter pdfConverter;
 
 
         private bool disposed = false;
@@ -18,9 +19,8 @@ namespace LegacyOfficeConverter
             wordConverter = new PooledConverter<WordConverter>(poolSize);
             excelConverter = new PooledConverter<ExcelConverter>(poolSize);
             powerPointConverter = new PooledConverter<PowerPointConverter>(poolSize);
-
-            // Store the path of the OCRConsole
             ocrConverter = new OCRConsole(OCRConsolePath);
+            pdfConverter = new PdfConverter(ocrConverter);
         }
 
         public string Convert(string path)
@@ -48,10 +48,13 @@ namespace LegacyOfficeConverter
                     break;
 
                 case ".pdf":
+                    convertedPath = pdfConverter.Convert(path);
+                    break; 
+
                 case ".jpg":
                 case ".tiff":
                 case ".png":
-                    convertedPath = convertOCR(path);
+                    convertedPath = ocrConverter.Convert(path);
                     break;
 
                 default:
@@ -62,16 +65,7 @@ namespace LegacyOfficeConverter
             return convertedPath;
         }
 
-
-        /**
-         * Convert OCR file, return its converted path
-         */
-        private string convertOCR(string path)
-        {
-            return ocrConverter.OCRrecognition(path);
-        }
-
-
+        
         /*
          * Pay great attention to the dispose/destruction functions, it's
          * very important to release the used Office objects properly.
@@ -90,9 +84,8 @@ namespace LegacyOfficeConverter
             if (disposing) {
                 wordConverter.Dispose();
                 excelConverter.Dispose();
-                powerPointConverter.Dispose();
+                powerPointConverter.Dispose();         
             }
-
             disposed = true;
         }
 

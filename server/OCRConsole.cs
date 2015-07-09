@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace LegacyOfficeConverter
 {
-    class OCRConsole
+    class OCRConsole : IConverter
     {
 
         private static readonly string[] validExtensions = { ".jpg", ".png", ".tiff", ".pdf" };
@@ -28,7 +28,7 @@ namespace LegacyOfficeConverter
         /// Perform an OCR processing over the given file and output it in the same path
         /// </summary>
         /// <param name="filePath">File path</param>
-        public string OCRrecognition(string filePath)
+        public string Convert(string filePath)
         {
 
             // Check that its a valid extension
@@ -44,7 +44,6 @@ namespace LegacyOfficeConverter
             return outPath;
 
         }
-
 
         /// <summary>
         /// Execute the OCR console program
@@ -76,7 +75,6 @@ namespace LegacyOfficeConverter
             process.BeginOutputReadLine();
             stdError = process.StandardError.ReadToEnd();
             process.WaitForExit();
-
 
             // Receive errors (this should never happen)
             if (process.ExitCode != 0)

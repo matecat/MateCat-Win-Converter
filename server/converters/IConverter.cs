@@ -2,7 +2,7 @@
 
 namespace LegacyOfficeConverter
 {
-    interface IConverter : IDisposable
+    interface IConverter
     {
         /**
          * Converts the file at the provided path in a OOXML file, and returns the

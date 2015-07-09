@@ -63,7 +63,8 @@ namespace LegacyOfficeConverter
                 T instance;
                 while (pool.TryTake(out instance))
                 {
-                    instance.Dispose();
+                    if (instance is IDisposable)
+                        ((IDisposable) instance).Dispose();
                 }
                 pool.Dispose();
             }

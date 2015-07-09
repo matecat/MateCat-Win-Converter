@@ -47,8 +47,17 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="itextsharp">
+      <HintPath>lib\iTextSharp\itextsharp.dll</HintPath>
+    </Reference>
+    <Reference Include="itextsharp.pdfa">
+      <HintPath>lib\iTextSharp\itextsharp.pdfa.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -57,19 +66,23 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Client.cs" />
+    <Compile Include="converters\CloudConvert.cs" />
     <Compile Include="Errors.cs" />
-    <Compile Include="ExcelConverter.cs" />
+    <Compile Include="converters\ExcelConverter.cs" />
     <Compile Include="FileTypes.cs" />
-    <Compile Include="PooledConverter.cs" />
-    <Compile Include="IConverter.cs" />
+    <Compile Include="FormUpload.cs" />
+    <Compile Include="converters\PdfConverter.cs" />
+    <Compile Include="converters\PooledConverter.cs" />
+    <Compile Include="converters\IConverter.cs" />
     <Compile Include="Options.cs" />
-    <Compile Include="PowerPointConverter.cs" />
+    <Compile Include="converters\PowerPointConverter.cs" />
+    <Compile Include="PdfAnalyzer.cs" />
     <Compile Include="ProtocolException.cs" />
     <Compile Include="Server.cs" />
-    <Compile Include="ConvertersRouter.cs" />
+    <Compile Include="converters\ConvertersRouter.cs" />
     <Compile Include="ConsoleApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WordConverter.cs" />
+    <Compile Include="converters\WordConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -140,6 +153,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="OCRConsole.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="libs\itextsharp.dll" />
+    <EmbeddedResource Include="libs\itextsharp.pdfa.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

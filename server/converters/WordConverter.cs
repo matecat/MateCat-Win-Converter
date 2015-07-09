@@ -1,23 +1,20 @@
-﻿using Microsoft.Office.Core;
-using Microsoft.Office.Interop.PowerPoint;
+﻿using Microsoft.Office.Interop.Word;
 using System;
 using System.Runtime.InteropServices;
 
 namespace LegacyOfficeConverter
 {
-    class PowerPointConverter : IConverter
+    class WordConverter : IConverter, IDisposable
     {
-        private Application powerPoint;
+        private Application word;
 
         private bool disposed = false;
 
-        public PowerPointConverter()
+        public WordConverter()
         {
-            // Start Powerpoint
-            powerPoint = new Application();
-            // Setting the Visible property like Word and Excel causes an exception.
-            // The PowerPoint visibility is controlled using a parameter in the
-            // document's open method.
+            // Start Word
+            word = new Application();
+            word.Visible = false;
         }
 
         public string Convert(string path)
@@ -26,32 +23,35 @@ namespace LegacyOfficeConverter
             string pathWithoutExtension = path.Substring(0, lastDotIndex);
 
             string convertedPath = null;
-            lock (powerPoint)
+            lock (word)
             {
-                Presentation ppt = null;
+                Document doc = null;
                 try
                 {
-                    ppt = powerPoint.Presentations.Open(FileName: path, ReadOnly: MsoTriState.msoTrue, WithWindow: MsoTriState.msoFalse);
-                    if (ppt == null)
+                    doc = word.Documents.Open(FileName: path, ReadOnly: true);
+                    if (doc == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    ppt.SaveAs(FileName: pathWithoutExtension, FileFormat: PpSaveAsFileType.ppSaveAsOpenXMLPresentation);
-                    convertedPath = ppt.FullName;
+                    doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatDocumentDefault);
+                    convertedPath = doc.FullName;
                 }
                 finally
                 {
-                    if (ppt != null)
+                    // Whatever happens, always release the COM object created for the document.
+                    // .NET should handle COM objects release by itself, but I release them
+                    // manually just to be sure. See http://goo.gl/7zv9Hj
+                    if (doc != null)
                     {
                         try
                         {
-                            ppt.Close();
+                            doc.Close(SaveChanges: false);
                         }
                         catch { }
                         finally
                         {
-                            Marshal.ReleaseComObject(ppt);
-                            ppt = null;
+                            Marshal.ReleaseComObject(doc);
+                            doc = null;
                         }
                     }
                 }
@@ -81,20 +81,20 @@ namespace LegacyOfficeConverter
 
             try
             {
-                powerPoint.Quit();
+                word.Quit(SaveChanges: false);
             }
             catch (Exception e)
             {
-                Console.WriteLine("WARNING: exception while quitting PowerPoint instance. Full error:");
+                Console.WriteLine("WARNING: exception while quitting Word instance. Full error:");
                 Console.WriteLine(e);
             }
-            Marshal.ReleaseComObject(powerPoint);
-            powerPoint = null;
+            Marshal.ReleaseComObject(word);
+            word = null;
 
             disposed = true;
         }
 
-        ~PowerPointConverter()
+        ~WordConverter()
         {
             Dispose(false);
         }

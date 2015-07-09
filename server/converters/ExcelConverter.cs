@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace LegacyOfficeConverter
 {
-    class ExcelConverter : IConverter
+    class ExcelConverter : IConverter, IDisposable
     {
         private Application excel;
 
