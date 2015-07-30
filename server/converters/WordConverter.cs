@@ -1,6 +1,7 @@
 ﻿using Microsoft.Office.Interop.Word;
 using System;
 using System.Runtime.InteropServices;
+using System.IO;
 
 namespace LegacyOfficeConverter
 {
@@ -21,7 +22,7 @@ namespace LegacyOfficeConverter
         {
             int lastDotIndex = path.LastIndexOf('.');
             string pathWithoutExtension = path.Substring(0, lastDotIndex);
-
+            
             string convertedPath = null;
             lock (word)
             {
@@ -33,7 +34,8 @@ namespace LegacyOfficeConverter
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatDocumentDefault);
+                    //doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatDocumentDefault);
+                    doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatXMLDocument);
                     convertedPath = doc.FullName;
                 }
                 finally
