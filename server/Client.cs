@@ -44,14 +44,25 @@ namespace LegacyOfficeConverter
 
                 int fileTypeValue = ReceiveInt();
                 FileTypes fileType = (FileTypes)fileTypeValue;
-                Console.WriteLine(socket.RemoteEndPoint + " received file type: " + fileTypeValue + " ("+ fileType +")");
+                Console.WriteLine(socket.RemoteEndPoint + " received input file type: " + fileTypeValue + " ("+ fileType +")");
                 if (!FileTypes.IsDefined(typeof(FileTypes), fileType))
                 {
                     throw new ProtocolException(Errors.BadFileType);
                 }
 
 
-                // 2) Read the input file size
+                // 2) Read the output file type
+
+                int outputFileTypeValue = ReceiveInt();
+                FileTypes outputFileType = (FileTypes)outputFileTypeValue;
+                Console.WriteLine(socket.RemoteEndPoint + " received output file type: " + outputFileTypeValue + " (" + outputFileType + ")");
+                if (!FileTypes.IsDefined(typeof(FileTypes), outputFileType))
+                {
+                    throw new ProtocolException(Errors.BadFileType);
+                }
+
+
+                // 3) Read the input file size
 
                 int fileSize = ReceiveInt();
                 Console.WriteLine(socket.RemoteEndPoint + " received file size: " + fileSize);
@@ -60,7 +71,7 @@ namespace LegacyOfficeConverter
                     throw new ProtocolException(Errors.BadFileSize);
                 }
 
-                // 3) Read the input file and cache it on disk
+                // 4) Read the input file and cache it on disk
 
                 // Very rare, but two concurrent threads can try to write on the same file:
                 // avoid it locking the FileStream opening block
@@ -84,12 +95,12 @@ namespace LegacyOfficeConverter
                 Console.WriteLine(socket.RemoteEndPoint + " received file");
 
 
-                // 4) Convert the source file
-
+                // 5) Convert the source file
+                convertedFilePath = Path.ChangeExtension(tmpFilePath, "." + outputFileType);
                 Console.WriteLine(socket.RemoteEndPoint + " converting file");
                 try
                 {
-                    convertedFilePath = fileConverter.Convert(tmpFilePath);
+                    fileConverter.Convert(tmpFilePath, convertedFilePath);
                     Console.WriteLine(socket.RemoteEndPoint + " converted file");
                 }
                 catch (Exception e)
@@ -98,13 +109,13 @@ namespace LegacyOfficeConverter
                 }
 
 
-                // 5) Send back the ok status code
+                // 6) Send back the ok status code
 
                 SendInt(0);
                 Console.WriteLine(socket.RemoteEndPoint + " sent status code: 0");
 
 
-                // 6) Send back the converted file size
+                // 7) Send back the converted file size
 
                 int filesize = 0;
                 try
@@ -119,7 +130,7 @@ namespace LegacyOfficeConverter
                 Console.WriteLine(socket.RemoteEndPoint + " sent converted file size: " + filesize);
 
 
-                // 7) Send back the converted file and then delete it
+                // 8) Send back the converted file and then delete it
 
                 buffer = new byte[BufferSize];
                 convertedFileStream = new FileStream(convertedFilePath, FileMode.Open);

@@ -22,27 +22,24 @@ namespace LegacyOfficeConverter
         {
             this.toolPath = toolPath;
         }
-        
-        
+
+
         /// <summary>
         /// Perform an OCR processing over the given file and output it in the same path
         /// </summary>
-        /// <param name="filePath">File path</param>
-        public string Convert(string filePath)
+        /// <param name="inputPath">File path</param>
+        /// <param name="outputPath">Output file path</param>
+        public void Convert(string inputPath, string outputPath)
         {
 
             // Check that its a valid extension
-            string extension = Path.GetExtension(filePath);
+            string extension = Path.GetExtension(inputPath);
             if (!validExtensions.Contains(extension.ToLower()))
                 throw new ArgumentException("FileConverter received an unsupported exception: " + extension + ".");
 
             // Obtain the out path and execute the console
-            string outPath = Path.ChangeExtension(filePath, ".docx");
-            RunConsole(filePath, outPath);
-
-            // Return out path
-            return outPath;
-
+            RunConsole(inputPath, outputPath);
+         
         }
 
         /// <summary>

@@ -20,24 +20,19 @@ namespace LegacyOfficeConverter
             // document's open method.
         }
 
-        public string Convert(string path)
+        public void Convert(string inputPath, string outputPath)
         {
-            int lastDotIndex = path.LastIndexOf('.');
-            string pathWithoutExtension = path.Substring(0, lastDotIndex);
-
-            string convertedPath = null;
             lock (powerPoint)
             {
                 Presentation ppt = null;
                 try
                 {
-                    ppt = powerPoint.Presentations.Open(FileName: path, ReadOnly: MsoTriState.msoTrue, WithWindow: MsoTriState.msoFalse);
+                    ppt = powerPoint.Presentations.Open(FileName: inputPath, ReadOnly: MsoTriState.msoTrue, WithWindow: MsoTriState.msoFalse);
                     if (ppt == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    ppt.SaveAs(FileName: pathWithoutExtension, FileFormat: PpSaveAsFileType.ppSaveAsOpenXMLPresentation);
-                    convertedPath = ppt.FullName;
+                    ppt.SaveAs(FileName: outputPath, FileFormat: PpSaveAsFileType.ppSaveAsOpenXMLPresentation);
                 }
                 finally
                 {
@@ -56,7 +51,6 @@ namespace LegacyOfficeConverter
                     }
                 }
             }
-            return convertedPath;
         }
 
         /*

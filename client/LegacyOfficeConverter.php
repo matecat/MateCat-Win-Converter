@@ -55,6 +55,16 @@ class LegacyOfficeConverter {
      * bits integer.
      */
     public function convert($fileType, $bytes) {
+        
+        // Output file type
+        $outputFileType = -1;
+        if (in_array($fileType, array(1,4,8,9,10,11,12)))
+            $outputFileType = 0;
+        else if (in_array($fileType, array(2,5)))
+            $outputFileType = 13;
+        else if (in_array($fileType, array(3,6,7)))
+            $outputFileType = 14;
+
         // Check if file is too big
         $fileSize = strlen($bytes);
         if ($fileSize > self::$MAX_INT_32) {
@@ -77,6 +87,8 @@ class LegacyOfficeConverter {
         try {
             // Send the file type
             self::writeInt($socket, $fileType);
+            // Send the output file type
+            self::writeInt($socket, $outputFileType);
             // Send the file size
             self::writeInt($socket, $fileSize);
             // Send the entire file

@@ -152,7 +152,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="OCRConsole.cs" />
+    <Compile Include="converters\OCRConsole.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="libs\itextsharp.dll" />

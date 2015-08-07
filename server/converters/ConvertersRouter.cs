@@ -20,46 +20,44 @@ namespace LegacyOfficeConverter
             this.OCRConsolePath = OCRConsolePath;
         }
 
-        public string Convert(string path)
+        public void Convert(string inputPath, string outputPath)
         {
-            string extension = Path.GetExtension(path).ToLower();
-            string convertedPath = null;
-
+            string extension = Path.GetExtension(inputPath).ToLower();
+            
             switch (extension)
             {
                 case ".doc":
                 case ".dot":
                 case ".rtf":
-                    convertedPath = wordConverter.Convert(path);
+                case ".docx":
+                    wordConverter.Convert(inputPath, outputPath);
                     break;
 
                 case ".xls":
                 case ".xlt":
-                    convertedPath = excelConverter.Convert(path);
+                    excelConverter.Convert(inputPath, outputPath);
                     break;
 
                 case ".ppt":
                 case ".pps":
                 case ".pot":
-                    convertedPath = powerPointConverter.Convert(path);
+                    powerPointConverter.Convert(inputPath, outputPath);
                     break;
 
                 case ".pdf":
-                    convertedPath = new PdfConverter(OCRConsolePath).Convert(path);
+                    new PdfConverter(OCRConsolePath).Convert(inputPath, outputPath);
                     break; 
 
                 case ".jpg":
                 case ".tiff":
                 case ".png":
-                    convertedPath = new OCRConsole(OCRConsolePath).Convert(path);
+                    new OCRConsole(OCRConsolePath).Convert(inputPath, outputPath);
                     break;
 
                 default:
                     // Unsupported exception
                     throw new Exception("FileConverter received an unsupported exception: " + extension + ".");
             }
-
-            return convertedPath;
         }
 
         

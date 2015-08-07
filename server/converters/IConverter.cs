@@ -10,6 +10,6 @@ namespace LegacyOfficeConverter
          * directory of the input file and with the same name, the only difference
          * is the extension.
          */
-        string Convert(string path);
+        void Convert(string inputPath, string outputPath);
     }
 }

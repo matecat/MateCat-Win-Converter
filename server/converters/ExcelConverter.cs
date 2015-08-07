@@ -17,24 +17,19 @@ namespace LegacyOfficeConverter
             excel.Visible = false;
         }
 
-        public string Convert(string path)
+        public void Convert(string inputPath, string outputPath)
         {
-            int lastDotIndex = path.LastIndexOf('.');
-            string pathWithoutExtension = path.Substring(0, lastDotIndex);
-
-            string convertedPath = null;
             lock (excel)
             {
                 Workbook xls = null;
                 try
                 {
-                    xls = excel.Workbooks.Open(Filename: path, ReadOnly: true);
+                    xls = excel.Workbooks.Open(Filename: inputPath, ReadOnly: true);
                     if (xls == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    xls.SaveAs(Filename: pathWithoutExtension, FileFormat: XlFileFormat.xlOpenXMLWorkbook);
-                    convertedPath = xls.FullName;
+                    xls.SaveAs(Filename: outputPath, FileFormat: XlFileFormat.xlOpenXMLWorkbook);
                 }
                 finally
                 {
@@ -56,7 +51,6 @@ namespace LegacyOfficeConverter
                     }
                 }
             }
-            return convertedPath;
         }
 
         /*

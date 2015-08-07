@@ -23,14 +23,13 @@ namespace LegacyOfficeConverter
             }
         }
 
-        public string Convert(string path)
+        public void Convert(string inputPath, string outputPath)
         {
             T instance = default(T);
             try
             {
                 instance = pool.Take();
-                string convertedFilePath = instance.Convert(path);
-                return convertedFilePath;
+                instance.Convert(inputPath, outputPath);
             }
             finally
             {

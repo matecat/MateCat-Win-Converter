@@ -8,6 +8,7 @@ namespace LegacyOfficeConverter
 {
     enum FileTypes
     {
+        docx = 0,
         doc = 1,
         xls = 2,
         ppt = 3,
@@ -19,6 +20,8 @@ namespace LegacyOfficeConverter
         pdf = 9,
         png = 10,
         jpg = 11,
-        tiff = 12
+        tiff = 12,
+        xlsx = 13,
+        pptx = 14
     }
 }

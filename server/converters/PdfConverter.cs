@@ -21,36 +21,29 @@ namespace LegacyOfficeConverter
         /// <summary>
         /// Convert both normal and scanned PDFs
         /// </summary>
-        /// <param name="path">Input path</param>
-        /// <returns>Path were the converted file has been stored</returns>
-        public string Convert(string path)
+        /// <param name="inputPath">Input path</param>
+        /// <param name="outputPath">Output path</param>
+        public void Convert(string inputPath, string outputPath)
         {
 
             // Check that we have are working with a PDF file and that it exists
-            if (Path.GetExtension(path).ToLower() != ".pdf" || !File.Exists(path))
+            if (Path.GetExtension(inputPath).ToLower() != ".pdf" || !File.Exists(inputPath))
                 throw new ArgumentException("The given file is not a PDF");
+            if (Path.GetExtension(outputPath).ToLower() != ".docx")
+                throw new ArgumentException("PDF files can just be converted to DOCX");
 
-            // Compute output path
-            string outPath = Path.ChangeExtension(path, ".docx");
-
-            // Check if its scanned or not
-            if (new PdfAnalyzer(path).IsScanned())
+            // If its scanned, execute an OCR recognition
+            if (new PdfAnalyzer(inputPath).IsScanned())
             {
-                // If its scanned, execute an OCR recognition
-                if (this.OCRConsolePath == null)
+               if (this.OCRConsolePath == null)
                     throw new Exception("A OCR console path has not been specified");
-                return new OCRConsole(OCRConsolePath).Convert(path);
+               new OCRConsole(OCRConsolePath).Convert(inputPath, outputPath);
             }
 
             // If not, convert it through cloudconvert
             else
             {
-
-                // Convert the file
-                new CloudConvert().Convert(path, outPath);
-
-                // Return the path of the new file
-                return outPath;
+                new CloudConvert().Convert(inputPath, outputPath); 
             }
 
             

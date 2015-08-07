@@ -18,25 +18,29 @@ namespace LegacyOfficeConverter
             word.Visible = false;
         }
 
-        public string Convert(string path)
+        public void Convert(string inputPath, string outputPath)
         {
-            int lastDotIndex = path.LastIndexOf('.');
-            string pathWithoutExtension = path.Substring(0, lastDotIndex);
-            
-            string convertedPath = null;
             lock (word)
             {
                 Document doc = null;
                 try
                 {
-                    doc = word.Documents.Open(FileName: path, ReadOnly: true);
+                    doc = word.Documents.Open(FileName: inputPath, ReadOnly: true);
                     if (doc == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    //doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatDocumentDefault);
-                    doc.SaveAs(FileName: pathWithoutExtension, FileFormat: WdSaveFormat.wdFormatXMLDocument);
-                    convertedPath = doc.FullName;
+                    String outExtension = Path.GetExtension(outputPath).Replace(".","");
+                    WdSaveFormat outFormat;
+                    if (outExtension == "rtf")
+                        outFormat = WdSaveFormat.wdFormatRTF;
+                    //else if (outExtension == "doc")
+                    //    outFormat = WdSaveFormat.wdFormatDocument97;
+                    //else if (outExtension == "pdf")
+                    //    outFormat = WdSaveFormat.wdFormatPDF;
+                    else
+                        outFormat = WdSaveFormat.wdFormatXMLDocument;
+                    doc.SaveAs(FileName: outputPath, FileFormat: outFormat);
                 }
                 finally
                 {
@@ -58,7 +62,6 @@ namespace LegacyOfficeConverter
                     }
                 }
             }
-            return convertedPath;
         }
 
         /*
