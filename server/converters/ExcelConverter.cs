@@ -4,7 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace LegacyOfficeConverter
 {
-    class ExcelConverter : IConverter, IDisposable
+    class ExcelConverter : IConverter, IConverterSanityCheck, IDisposable
     {
         private Application excel;
 
@@ -15,6 +15,45 @@ namespace LegacyOfficeConverter
             // Start Excel
             excel = new Application();
             excel.Visible = false;
+        }
+
+        public bool isWorking()
+        {
+            lock (excel)
+            {
+                Workbook xls = null;
+                try
+                {
+                    xls = excel.Workbooks.Add();
+                    // Return true if the instance successfully created an empty document.
+                    // The document will be gracefully closed and released in the finally block.
+                    return (xls != null);
+                }
+                catch
+                {
+                    // Obviously, in case of any error the instance is not working.
+                    return false;
+                }
+                finally
+                {
+                    // Whatever happens, always release the COM object created for the document.
+                    // .NET should handle COM objects release by itself, but I release them
+                    // manually just to be sure. See http://goo.gl/7zv9Hj
+                    if (xls != null)
+                    {
+                        try
+                        {
+                            xls.Close(SaveChanges: false);
+                        }
+                        catch { } // Skip any kind of error
+                        finally
+                        {
+                            Marshal.ReleaseComObject(xls);
+                            xls = null;
+                        }
+                    }
+                }
+            }
         }
 
         public void Convert(string inputPath, string outputPath)
@@ -77,11 +116,8 @@ namespace LegacyOfficeConverter
             {
                 excel.Quit();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("WARNING: exception while quitting Excel instance. Full error:");
-                Console.WriteLine(e);
-            }
+            catch { } // Ignore every exception
+
             Marshal.ReleaseComObject(excel);
             excel = null;
 

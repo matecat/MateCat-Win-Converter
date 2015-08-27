@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 
 namespace LegacyOfficeConverter
 {
-    class PowerPointConverter : IConverter, IDisposable
+    class PowerPointConverter : IConverter, IConverterSanityCheck, IDisposable
     {
         private Application powerPoint;
 
@@ -18,6 +18,45 @@ namespace LegacyOfficeConverter
             // Setting the Visible property like Word and Excel causes an exception.
             // The PowerPoint visibility is controlled using a parameter in the
             // document's open method.
+        }
+
+        public bool isWorking()
+        {
+            lock (powerPoint)
+            {
+                Presentation ppt = null;
+                try
+                {
+                    ppt = powerPoint.Presentations.Add(MsoTriState.msoFalse);
+                    // Return true if the instance successfully created an empty document.
+                    // The document will be gracefully closed and released in the finally block.
+                    return (ppt != null);
+                }
+                catch
+                {
+                    // Obviously, in case of any error the instance is not working.
+                    return false;
+                }
+                finally
+                {
+                    // Whatever happens, always release the COM object created for the document.
+                    // .NET should handle COM objects release by itself, but I release them
+                    // manually just to be sure. See http://goo.gl/7zv9Hj
+                    if (ppt != null)
+                    {
+                        try
+                        {
+                            ppt.Close();
+                        }
+                        catch { } // Skip any kind of error
+                        finally
+                        {
+                            Marshal.ReleaseComObject(ppt);
+                            ppt = null;
+                        }
+                    }
+                }
+            }
         }
 
         public void Convert(string inputPath, string outputPath)
@@ -77,11 +116,8 @@ namespace LegacyOfficeConverter
             {
                 powerPoint.Quit();
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("WARNING: exception while quitting PowerPoint instance. Full error:");
-                Console.WriteLine(e);
-            }
+            catch { } // Ignore every exception
+
             Marshal.ReleaseComObject(powerPoint);
             powerPoint = null;
 

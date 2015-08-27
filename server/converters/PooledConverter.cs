@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LegacyOfficeConverter
 {
@@ -20,19 +17,40 @@ namespace LegacyOfficeConverter
             for (int i = 0; i < instancesCount; i++)
             {
                 pool.Add(new T());
+                // TODO: if supported by the instance, do the sanity
+                // check. If the instance is not working stop
+                // everything and notify administrators, because 
+                // something very strange is happening.
             }
         }
 
         public void Convert(string inputPath, string outputPath)
         {
+            // Weird way to set variable to "null"
             T instance = default(T);
             try
             {
                 instance = pool.Take();
+                
+                // If possible, ensure the converter is working
+                if (instance is IConverterSanityCheck && ((IConverterSanityCheck)instance).isWorking() == false)
+                {
+                    // The converter is not working. Try to destroy it...
+                    if (instance is IDisposable)
+                        ((IDisposable)instance).Dispose();
+                    // ...and then create a fresh new one
+                    instance = new T();                        
+                    // TODO: check if also the fresh instance is working,
+                    // if not stop everything and notify administrators,
+                    // because something very strange is happening.
+                }
+
                 instance.Convert(inputPath, outputPath);
             }
             finally
             {
+                // Weird way to check that the variable is null. Sadly,
+                // because of generics you can't make this cleaner.
                 if (!EqualityComparer<T>.Default.Equals(instance, default(T)))
                 {
                     pool.Add(instance);

@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Client.cs" />
     <Compile Include="converters\CloudConvert.cs" />
+    <Compile Include="converters\IConverterSanityCheck.cs" />
     <Compile Include="Errors.cs" />
     <Compile Include="converters\ExcelConverter.cs" />
     <Compile Include="FileTypes.cs" />

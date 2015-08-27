@@ -5,7 +5,7 @@ using System.IO;
 
 namespace LegacyOfficeConverter
 {
-    class WordConverter : IConverter, IDisposable
+    class WordConverter : IConverter, IConverterSanityCheck, IDisposable
     {
         private Application word;
 
@@ -16,6 +16,46 @@ namespace LegacyOfficeConverter
             // Start Word
             word = new Application();
             word.Visible = false;
+        }
+
+
+        public bool isWorking()
+        {
+            lock (word)
+            {
+                Document doc = null;
+                try
+                {
+                    doc = word.Documents.Add();
+                    // Return true if the instance successfully created an empty document.
+                    // The document will be gracefully closed and released in the finally block.
+                    return (doc != null);
+                }
+                catch
+                {
+                    // Obviously, in case of any error the instance is not working.
+                    return false;
+                }
+                finally
+                {
+                    // Whatever happens, always release the COM object created for the document.
+                    // .NET should handle COM objects release by itself, but I release them
+                    // manually just to be sure. See http://goo.gl/7zv9Hj
+                    if (doc != null)
+                    {
+                        try
+                        {
+                            doc.Close(SaveChanges: false);
+                        }
+                        catch { } // Skip any kind of error
+                        finally
+                        {
+                            Marshal.ReleaseComObject(doc);
+                            doc = null;
+                        }
+                    }
+                }
+            }
         }
 
         public void Convert(string inputPath, string outputPath)
@@ -88,11 +128,8 @@ namespace LegacyOfficeConverter
             {
                 word.Quit(SaveChanges: false);
             }
-            catch (Exception e)
-            {
-                Console.WriteLine("WARNING: exception while quitting Word instance. Full error:");
-                Console.WriteLine(e);
-            }
+            catch { } // Ignore every exception
+
             Marshal.ReleaseComObject(word);
             word = null;
 

@@ -19,7 +19,7 @@ namespace LegacyOfficeConverter
             int port = 11000;
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
             int queue = 100;
-            int convertersPoolSize = 3;
+            int convertersPoolSize = 1;
             bool help = false;
 
             // Setup command line params
