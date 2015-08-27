@@ -1,6 +1,5 @@
-﻿using NDesk.Options;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -11,73 +10,39 @@ namespace LegacyOfficeConverter
     {
         static void Main(string[] args)
         {
-            // Here are all the defaults for command line params
-            string cache = Path.GetTempPath();
-            string ocrConsolePath = @"C:\Program Files (x86)\OCR Console\OcrCon.exe";
-            IPAddress addr = GuessLocalIPv4();
+            string cache = ConfigurationManager.AppSettings.Get("CachePath");
+            // If specified cache path is empty, use the system default temp dir
+            if (cache == "")
+            {
+                cache = Path.GetTempPath();
+            }
+
             // If port is zero socket will attach on the first available port between 1024 and 5000 (see https://goo.gl/t4MBUr)
-            int port = 11000;
+            int port = Int32.Parse(ConfigurationManager.AppSettings.Get("Port"));
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
-            int queue = 100;
-            int convertersPoolSize = 1;
-            bool help = false;
-
-            // Setup command line params
-            var p = new OptionSet() {
-                { "c|cache=",  "{PATH} to the folder where incoming/converted file will be cached; default: " + cache,
-                    v => cache = v },
-                { "a|addr=",  "the listener {ADDRESS}; default: " + addr, 
-                    v => addr = IPAddress.Parse(v) },
-                { "p|port=",  "the listener {PORT}; default: " + port, 
-                    (int v) => port = v },
-                { "q|queue=",  "the listener queue {SIZE}; default: " + queue, 
-                    (int v) => queue = v },
-                { "o|ocr=",  "the ocr console path, if custom",
-                    v => ocrConsolePath = v },
-                { "m|parallelism=",  "the {NUMBER} of Office instances to launch at startup in order to support parallel conversions; default: " + convertersPoolSize,
-                    (int v) => convertersPoolSize = v },
-                { "h|help",  "show this message and exit", 
-                    v => help = v != null },
-            };
-
-            // Parse command line params
-            List<string> extra;
-            try
-            {
-                extra = p.Parse(args);
-            }
-            catch (OptionException e)
-            {
-                Console.Write("LegacyOfficeConverter error: ");
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Try 'LegacyOfficeConverter --help' for more information.");
-                return;
-            }
-
-            // Show help if user requested it
-            if (help)
-            {
-                ShowHelp(p);
-                return;
-            }
+            int queue = Int32.Parse(ConfigurationManager.AppSettings.Get("QueueSize"));
+            int convertersPoolSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ConvertersPoolSize"));
+            string ocrConsolePath = ConfigurationManager.AppSettings.Get("OCRConsolePath");
 
             // Greet the user and recap params
             Console.WriteLine("Hello sir.");
+            Console.WriteLine();
             Console.WriteLine("Running LegacyOfficeConverter with options:");
             Console.WriteLine("  cache: " + cache);
-            Console.WriteLine("  addr : " + addr);
             Console.WriteLine("  port : " + port);
             Console.WriteLine("  queue: " + queue);
             Console.WriteLine("  ocr console: " + ocrConsolePath);
             Console.WriteLine("  parallelism: " + convertersPoolSize);
-            Console.WriteLine("Try 'LegacyOfficeConverter --help' for information on options.");
+            Console.WriteLine("Options are stored in the .config file in the same dir of this exe.");
+            Console.WriteLine();
+            Console.WriteLine("Guessed external IP is: " + GuessLocalIPv4().ToString());
             Console.WriteLine();
             Console.WriteLine("Starting conversion server...");
-            Console.WriteLine("Press ESC to stop the server.");
+            Console.WriteLine("Press ESC to stop the server and quit.");
             Console.WriteLine();
 
             // Start the conversion server in another thread
-            Server server = new Server(addr, port, new DirectoryInfo(cache), queue, convertersPoolSize, ocrConsolePath);
+            Server server = new Server(port, new DirectoryInfo(cache), queue, convertersPoolSize, ocrConsolePath);
             Thread t = new Thread(new ThreadStart(server.Start));
             t.Start();
 
@@ -97,14 +62,6 @@ namespace LegacyOfficeConverter
             Console.WriteLine("Good bye sir.");
             // Let the user read the goodbye message
             Thread.Sleep(1000);
-        }
-
-        static void ShowHelp (OptionSet p)
-        {
-            Console.WriteLine("Usage: LegacyOfficeConverter [OPTIONS]+");
-            Console.WriteLine();
-            Console.WriteLine("Options:");
-            p.WriteOptionDescriptions(Console.Out);
         }
 
         static IPAddress GuessLocalIPv4()

@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Web;
@@ -8,7 +8,7 @@ namespace LegacyOfficeConverter
 
     class CloudConvert : IConverter
     {
-        private static readonly string CloudConverterKey = "zSOdJP2QupwbNgSCO7cq2sWlhIKqiU28-tRDnUF1-T40Q8lYOWSp_u4l2Sms-oJzdYlM3LsW6gx0FO88KXAQAw";
+        private static readonly string CloudConverterKey = ConfigurationManager.AppSettings.Get("CloudConverterKey");
         private static readonly string BaseUrl = "https://api.cloudconvert.com/convert";
 
         // TODO: add exception handling

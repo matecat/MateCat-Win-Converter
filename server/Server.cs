@@ -13,7 +13,6 @@ namespace LegacyOfficeConverter
     {
         private const int SocketPollMicroseconds = 250000;
 
-        private IPAddress address;
         private int port;
         private DirectoryInfo tmpDir;
         private int queueSize;
@@ -23,9 +22,8 @@ namespace LegacyOfficeConverter
         private bool running = true;
         private bool stopped = false;
 
-        public Server(IPAddress address, int port, DirectoryInfo tmpDir, int queueSize, int convertersPoolSize, string OCRConsolePath)
+        public Server(int port, DirectoryInfo tmpDir, int queueSize, int convertersPoolSize, string OCRConsolePath)
         {
-            this.address = address;
             this.port = port;
             this.tmpDir = tmpDir;
             this.queueSize = queueSize;
@@ -42,16 +40,15 @@ namespace LegacyOfficeConverter
             ConvertersRouter fileConverter = new ConvertersRouter(convertersPoolSize, OCRConsolePath);
 
             Socket server = null;
-            EndPoint endPoint = new IPEndPoint(address, port);
+            EndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
             try
             {
                 server = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 server.Blocking = true;
                 server.Bind(endPoint);
                 server.Listen(queueSize);
-                
-                Console.WriteLine("Conversion server started.");
-                Console.WriteLine("Listening on " + server.LocalEndPoint);
+
+                Console.WriteLine("Conversion server is ready to accept requests.");
 
                 while (running)
                 {
