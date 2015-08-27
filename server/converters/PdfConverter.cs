@@ -21,8 +21,6 @@ namespace LegacyOfficeConverter
         /// <summary>
         /// Convert both normal and scanned PDFs
         /// </summary>
-        /// <param name="inputPath">Input path</param>
-        /// <param name="outputPath">Output path</param>
         public void Convert(string inputPath, string outputPath)
         {
 

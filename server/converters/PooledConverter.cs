@@ -40,12 +40,16 @@ namespace LegacyOfficeConverter
             }
         }
 
+        
         /*
          * Pay great attention to the dispose/destruction functions, it's
          * very important to release the used Office objects properly.
          */
-        // Important: this method is NOT thread-safe. 
-        // Be sure nobody is using this class before calling it.
+        
+        /// <summary>
+        /// Important: this method is NOT thread-safe. 
+        /// Be sure nobody is using this class before calling it.
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
