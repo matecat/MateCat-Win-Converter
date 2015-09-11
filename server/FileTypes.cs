@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace LegacyOfficeConverter
 {
-    enum FileTypes
+    public enum FileTypes
     {
         docx = 0,
         doc = 1,

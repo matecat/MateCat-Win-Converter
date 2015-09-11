@@ -74,6 +74,11 @@ namespace LegacyOfficeConverter
             }
         }
 
+        public bool IsRunning()
+        {
+            return running;
+        }
+
         public void Stop()
         {
             running = false;
