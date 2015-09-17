@@ -1,24 +1,20 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace LegacyOfficeConverter
 {
-    public class Client
+    public class ConversionRequest
     {
         public const int BufferSize = 8192;
 
         private Socket socket;
         private DirectoryInfo tmpDir;
         private ConvertersRouter fileConverter;
-        private Object fileSystemLock;
+        private object fileSystemLock;
 
-        public Client(Socket socket, DirectoryInfo tmpDir, ConvertersRouter fileConverter, Object fileSystemLock)
+        public ConversionRequest(Socket socket, DirectoryInfo tmpDir, ConvertersRouter fileConverter, object fileSystemLock)
         {
             this.socket = socket;
             this.tmpDir = tmpDir;

@@ -1,32 +1,25 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using LegacyOfficeConverter;
 using System.IO;
-using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 using System;
 
-namespace UnitTestProject1
+namespace Tests
 {
     [TestClass]
-    public class UnitTest1
+    public class TestConversionServer
     {
 
-        static int testPort = 11000;
-        static Server testServer;
-        static EndPoint testEndPoint = new IPEndPoint(IPAddress.Loopback, testPort);
+        static readonly int testPort = 11000;
+        static ConversionServer testServer;
+        static readonly EndPoint testEndPoint = new IPEndPoint(IPAddress.Loopback, testPort);
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {     
-            testServer = new Server(testPort, new DirectoryInfo(Path.GetTempPath()), 100, 1, null);
-            Thread t = new Thread(new ThreadStart(testServer.Start));
-            t.Start();
-
-            while (!testServer.IsRunning())
-            {
-                Thread.Sleep(250);
-            }
+            testServer = new ConversionServer(testPort, new DirectoryInfo(Path.GetTempPath()), 100, 1, null);
+            testServer.Start();
         }
 
         [ClassCleanup]
@@ -115,42 +108,53 @@ namespace UnitTestProject1
             Socket socket = null;
             try
             {
+                // Connect to test conversion server
                 socket = new Socket(testEndPoint.AddressFamily,
                     SocketType.Stream,
                     ProtocolType.Tcp);
                 socket.Connect(testEndPoint);
 
+                // Send inputs
                 SendInt(socket, sourceFileType);
                 SendInt(socket, targetFileType);
                 SendInt(socket, fileSize);
                 socket.Send(file, file.Length, 0);
 
+                // Receive status code
                 int statusCode = ReceiveInt(socket);
-
                 if (statusCode != 0)
                 {
                     return statusCode;
                 }
 
+                // Receive the size of the converted file
                 int convertedSize = ReceiveInt(socket);
 
+                // Receive the converted file
                 var buffer = new byte[1024];
                 int bytesRead, totalBytesRead = 0;
                 while ((bytesRead = socket.Receive(buffer, buffer.Length, 0)) > 0)
                 {
+                    // We don't need to save the data, just count how many bytes we
+                    // are receiving
                     totalBytesRead += bytesRead;
                 }
-
+                // Check that we received no more bytes than expected
                 if (totalBytesRead != convertedSize)
                 {
                     throw new Exception("Expected file length: " + convertedSize + " bytes; Received file length: " + totalBytesRead + " bytes");
                 }
 
+                // At this point, status code should be 0 - everything ok
                 return statusCode;
             }
             finally
             {
-                if (socket != null) socket.Close();
+                if (socket != null)
+                {
+                    socket.Shutdown(SocketShutdown.Both);
+                    socket.Close();
+                }
             }
         }
     }

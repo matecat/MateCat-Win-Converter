@@ -42,9 +42,8 @@ namespace LegacyOfficeConverter
             Console.WriteLine();
 
             // Start the conversion server in another thread
-            Server server = new Server(port, new DirectoryInfo(cache), queue, convertersPoolSize, ocrConsolePath);
-            Thread t = new Thread(new ThreadStart(server.Start));
-            t.Start();
+            ConversionServer server = new ConversionServer(port, new DirectoryInfo(cache), queue, convertersPoolSize, ocrConsolePath);
+            server.Start();
 
             // Press ESC to stop the server. 
             // If others keys are pressed, remember to the user that only ESC works.

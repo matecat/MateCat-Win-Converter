@@ -1,15 +1,13 @@
-﻿using Microsoft.Office.Interop.Word;
-using System;
+﻿using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
 using System.Threading;
 
 namespace LegacyOfficeConverter
 {
 
-    public class Server
+    public class ConversionServer
     {
         private const int SocketPollMicroseconds = 250000;
 
@@ -19,10 +17,10 @@ namespace LegacyOfficeConverter
         private int convertersPoolSize;
         private string OCRConsolePath;
 
-        private bool running = true;
-        private bool stopped = false;
+        private bool running = false;
+        private bool stopped = true;
 
-        public Server(int port, DirectoryInfo tmpDir, int queueSize, int convertersPoolSize, string OCRConsolePath)
+        public ConversionServer(int port, DirectoryInfo tmpDir, int queueSize, int convertersPoolSize, string OCRConsolePath)
         {
             this.port = port;
             this.tmpDir = tmpDir;
@@ -33,10 +31,18 @@ namespace LegacyOfficeConverter
 
         public void Start()
         {
-            running = true;
-            stopped = false;
+            Thread t = new Thread(new ThreadStart(StartListening));
+            t.Start();
+            while (!running)
+            {
+                // Wait the server is ready before returning to the caller
+                Thread.Sleep(200);
+            }
+        }
 
-            Object fileSystemLock = new Object();
+        private void StartListening()
+        {
+            object fileSystemLock = new object();
             ConvertersRouter fileConverter = new ConvertersRouter(convertersPoolSize, OCRConsolePath);
 
             Socket server = null;
@@ -48,6 +54,9 @@ namespace LegacyOfficeConverter
                 server.Bind(endPoint);
                 server.Listen(queueSize);
 
+                running = true;
+                stopped = false;
+
                 Console.WriteLine("Conversion server is ready to accept requests.");
 
                 while (running)
@@ -55,7 +64,7 @@ namespace LegacyOfficeConverter
                     if (server.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
                     {
                         Socket clientSocket = server.Accept();
-                        Client connection = new Client(clientSocket, tmpDir, fileConverter, fileSystemLock);
+                        ConversionRequest connection = new ConversionRequest(clientSocket, tmpDir, fileConverter, fileSystemLock);
                         Thread clientThread = new Thread(new ThreadStart(connection.Run));
                         clientThread.Start();
                     }
@@ -74,17 +83,12 @@ namespace LegacyOfficeConverter
             }
         }
 
-        public bool IsRunning()
-        {
-            return running;
-        }
-
         public void Stop()
         {
             running = false;
             while (!stopped)
             {
-                Thread.Sleep(500);
+                Thread.Sleep(200);
             }
         }
     }
