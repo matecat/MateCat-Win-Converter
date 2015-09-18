@@ -2,39 +2,44 @@
 using System.IO;
 using System.Net;
 using System.Web;
+using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
+using static Translated.MateCAT.LegacyOfficeConverter.Utils.PdfAnalyzer;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
 
-    class CloudConvert : IConverter
+    public class CloudConvert : IConverter
     {
         private static readonly string CloudConverterKey = ConfigurationManager.AppSettings.Get("CloudConvertKey");
-        private static readonly string BaseUrl = "https://api.cloudconvert.com/convert";
 
-        // TODO: add exception handling
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
-            // Compute extensions
-            string inputFormat = Path.GetExtension(inputPath).Replace(".", "");
-            string outputFormat = Path.GetExtension(outputPath).Replace(".", "");
+            // Restrict supported conversion to only regular-pdf -> docx, 
+            // but don't forget that CloudConvert supports almost anything.
+            if (sourceFormat != (int)FileTypes.pdf || targetFormat != (int)FileTypes.docx || IsScannedPdf(sourceFilePath))
+            {
+                return false;
+            }
 
             // Execute the call
             using (WebClient client = new WebClient())
             {    
-
-               // Update the file and get the response
-               client.Headers["Content-Type"] = "binary/octet-stream";
-               byte[] response = client.UploadFile(string.Format("{0}?apikey={1}&input=upload&inputformat={2}&outputformat={3}&file={4}",
-                                                             BaseUrl,
+                // Send the file to CloudConvert
+                client.Headers["Content-Type"] = "binary/octet-stream";
+                string address = string.Format("{0}?apikey={1}&input=upload&inputformat={2}&outputformat={3}&file={4}",
+                                                             "https://api.cloudconvert.com/convert",
                                                              CloudConverterKey,
-                                                             inputFormat,
-                                                             outputFormat,
-                                                             HttpUtility.UrlEncode(inputPath)),
-                                               inputPath);
+                                                             "pdf",
+                                                             "docx",
+                                                             HttpUtility.UrlEncode(sourceFilePath));
+                byte[] response = client.UploadFile(address, sourceFilePath);
 
-                // Compute the out path and save it
-                File.WriteAllBytes(outputPath, response);
+                // Save returned converted file
+                File.WriteAllBytes(targetFilePath, response);
             }
+
+            // Everything ok, return the success to the caller
+            return true;
         }
 
     }

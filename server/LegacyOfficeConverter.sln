@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegacyOfficeConverter", "LegacyOfficeConverter.csproj", "{AA79B5F8-AB96-44C1-8D63-D87CE4B3495E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitTestProject1", "..\UnitTestProject1\UnitTestProject1.csproj", "{A4C7FE70-86E2-414A-B02D-3A036891F5F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LegacyOfficeConverterTest", "..\UnitTestProject1\LegacyOfficeConverterTest.csproj", "{A4C7FE70-86E2-414A-B02D-3A036891F5F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

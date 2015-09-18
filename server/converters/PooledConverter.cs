@@ -2,7 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
     class PooledConverter<T>: IConverter where T:IConverter, new()
     {
@@ -24,7 +24,7 @@ namespace LegacyOfficeConverter
             }
         }
 
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
             // Weird way to set variable to "null"
             T instance = default(T);
@@ -45,7 +45,7 @@ namespace LegacyOfficeConverter
                     // because something very strange is happening.
                 }
 
-                instance.Convert(inputPath, outputPath);
+                return instance.Convert(sourceFilePath, sourceFormat, targetFilePath, targetFormat);
             }
             finally
             {

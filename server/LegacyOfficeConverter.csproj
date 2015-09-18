@@ -65,24 +65,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConversionRequest.cs" />
-    <Compile Include="converters\CloudConvert.cs" />
-    <Compile Include="converters\IConverterSanityCheck.cs" />
-    <Compile Include="Errors.cs" />
-    <Compile Include="converters\ExcelConverter.cs" />
-    <Compile Include="FileTypes.cs" />
-    <Compile Include="FormUpload.cs" />
-    <Compile Include="converters\PdfConverter.cs" />
-    <Compile Include="converters\PooledConverter.cs" />
-    <Compile Include="converters\IConverter.cs" />
-    <Compile Include="converters\PowerPointConverter.cs" />
-    <Compile Include="PdfAnalyzer.cs" />
-    <Compile Include="ProtocolException.cs" />
-    <Compile Include="ConversionServer.cs" />
-    <Compile Include="converters\ConvertersRouter.cs" />
+    <Compile Include="ConversionServer\ConversionRequest.cs" />
+    <Compile Include="Converters\CloudConvert.cs" />
+    <Compile Include="Converters\IConverterSanityCheck.cs" />
+    <Compile Include="ConversionServer\StatusCodes.cs" />
+    <Compile Include="Converters\ExcelConverter.cs" />
+    <Compile Include="ConversionServer\FileTypes.cs" />
+    <Compile Include="Utils\FormUpload.cs" />
+    <Compile Include="Converters\PdfConverter.cs" />
+    <Compile Include="Converters\PooledConverter.cs" />
+    <Compile Include="Converters\IConverter.cs" />
+    <Compile Include="Converters\PowerPointConverter.cs" />
+    <Compile Include="Utils\PdfAnalyzer.cs" />
+    <Compile Include="ConversionServer\ProtocolException.cs" />
+    <Compile Include="ConversionServer\ConversionServer.cs" />
+    <Compile Include="Converters\ConvertersRouter.cs" />
     <Compile Include="ConsoleApp.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="converters\WordConverter.cs" />
+    <Compile Include="Converters\WordConverter.cs" />
+    <Compile Include="Utils\TempFolder.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -152,11 +153,11 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="converters\OCRConsole.cs" />
+    <Compile Include="Converters\OCRConsole.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="libs\itextsharp.dll" />
-    <EmbeddedResource Include="libs\itextsharp.pdfa.dll" />
+    <EmbeddedResource Include="Libs\itextsharp.dll" />
+    <EmbeddedResource Include="Libs\itextsharp.pdfa.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

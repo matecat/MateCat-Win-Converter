@@ -1,56 +1,53 @@
 ﻿using System;
+using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
+using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
+using static Translated.MateCAT.LegacyOfficeConverter.Utils.PdfAnalyzer;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    class OCRConsole : IConverter
+    public class OcrConverter : IConverter
     {
+        private static readonly string ocrConsolePath = ConfigurationManager.AppSettings.Get("OCRConsolePath");
+        private static readonly bool isInstalled;
 
-        private static readonly string[] validExtensions = { ".jpg", ".png", ".tiff", ".pdf" };
-        private string toolPath;
+        private static readonly int[] validSourceExtensions = { (int)FileTypes.jpg, (int)FileTypes.png, (int)FileTypes.tiff, (int)FileTypes.pdf };
 
-        /// <summary>
-        /// Console constructor, receiving the path to the OCR console
-        /// </summary>
-        public OCRConsole(string toolPath)
+        static OcrConverter()
         {
-            this.toolPath = toolPath;
+            isInstalled = File.Exists(ocrConsolePath);
+            Console.WriteLine("WARNING: OCR Console executable doesn't exist; OCR conversions disabled");
         }
-
 
         /// <summary>
         /// Perform an OCR processing over the given file and output it in the same path
         /// </summary>
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
+            // Check if the required conversion is supported
+            if (!validSourceExtensions.Contains(sourceFormat) || targetFormat != (int)FileTypes.docx)
+            {
+                return false;
+            }
+            // If we have a PDF and it's not scanned, return false
+            if (sourceFormat == (int)FileTypes.pdf && !IsScannedPdf(sourceFilePath))
+            {
+                return false;
+            }
 
-            // Check that its a valid extension
-            string extension = Path.GetExtension(inputPath);
-            if (!validExtensions.Contains(extension.ToLower()))
-                throw new ArgumentException("FileConverter received an unsupported extension: " + extension + ".");
+            // If OCR Console is not installed, skip the conversion
+            if (!isInstalled)
+            {
+                Console.WriteLine("Skipped OCR Conversion because OCR Console is missing");
+                return false;
+            }
 
-            // Obtain the out path and execute the console
-            RunConsole(inputPath, outputPath);
-         
-        }
-
-        /// <summary>
-        /// Execute the OCR console program
-        /// </summary>
-        private void RunConsole(string input, string output)
-        {
-
-            // Check that the console is installed
-            if (!File.Exists(toolPath))
-                throw new Exception("The OCR is not installed in the server");
-
-            // Set the process ready
+            // Setup process
             var process = new Process();
-            process.StartInfo.Arguments = "\"" + input + "\" \"" + output + "\"";
-            process.StartInfo.FileName = toolPath;
+            process.StartInfo.Arguments = "\"" + sourceFilePath + "\" \"" + targetFilePath + "\"";
+            process.StartInfo.FileName = ocrConsolePath;
             process.StartInfo.CreateNoWindow = true;
             process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
             process.StartInfo.UseShellExecute = false;
@@ -58,35 +55,22 @@ namespace LegacyOfficeConverter
             process.StartInfo.RedirectStandardOutput = true;
 
             // Execute it
-            var stdOutput = new StringBuilder();
-            process.OutputDataReceived += (sender, args) => stdOutput.Append(args.Data);
-            string stdError = null;
             process.Start();
-            process.BeginOutputReadLine();
-            stdError = process.StandardError.ReadToEnd();
             process.WaitForExit();
 
-            // Receive errors (this should never happen)
+            // Check errors
             if (process.ExitCode != 0)
             {
-                throw new Exception("It was not possible to OCR convert the file");
-
-                /* ERROR HANDLING TODO
-                var message = new StringBuilder();
-                if (!string.IsNullOrEmpty(stdError))
-                {
-                    message.AppendLine(stdError);
-                }
-
-                if (stdOutput.Length != 0)
-                {
-                    message.AppendLine("Std output:");
-                    message.AppendLine(stdOutput.ToString());
-                }
-
-                throw new Exception(" Process finished with exit code = " + process.ExitCode + ": " + message);
-                */
+                throw new Exception("OCR Console returned exit code " + process.ExitCode);
             }
+
+            // Everything ok, return the success to the caller        
+            return true;
+        }
+
+        public static bool IsInstalled()
+        {
+            return isInstalled;
         }
 
     }

@@ -1,11 +1,15 @@
 ﻿using Microsoft.Office.Interop.Excel;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    class ExcelConverter : IConverter, IConverterSanityCheck, IDisposable
+    public class ExcelConverter : IConverter, IConverterSanityCheck, IDisposable
     {
+        private static int[] supportedFormats = { (int)FileTypes.xls, (int)FileTypes.xlsx };
+
         private Application excel;
 
         private bool disposed = false;
@@ -56,19 +60,46 @@ namespace LegacyOfficeConverter
             }
         }
 
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
+            // Check if the required conversion is supported
+            if (!supportedFormats.Contains(sourceFormat) || !supportedFormats.Contains(targetFormat))
+            {
+                return false;
+            }
+
+            // Covnersion supported, do it
             lock (excel)
             {
                 Workbook xls = null;
                 try
                 {
-                    xls = excel.Workbooks.Open(Filename: inputPath, ReadOnly: true);
+                    // Open the file
+                    xls = excel.Workbooks.Open(Filename: sourceFilePath, ReadOnly: true);
                     if (xls == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    xls.SaveAs(Filename: outputPath, FileFormat: XlFileFormat.xlOpenXMLWorkbook);
+
+                    // Select the target format
+                    XlFileFormat msOfficeTargetFormat;
+                    switch (targetFormat)
+                    {
+                        case (int)FileTypes.xlsx:
+                            msOfficeTargetFormat = XlFileFormat.xlOpenXMLWorkbook;
+                            break;
+                        case (int)FileTypes.xls:
+                            msOfficeTargetFormat = XlFileFormat.xlExcel8;
+                            break;
+                        default:
+                            throw new Exception("Unexpected target format");
+                    }
+
+                    // Save the file in the target format
+                    xls.SaveAs(Filename: targetFilePath, FileFormat: msOfficeTargetFormat);
+
+                    // Everything ok, return the success to the caller
+                    return true;
                 }
                 finally
                 {

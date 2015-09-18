@@ -1,8 +1,8 @@
 ﻿using System;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    interface IConverter
+    public interface IConverter
     {
         /// <summary>
         /// Converts the file at the provided path in a OOXML file, and returns the
@@ -10,6 +10,6 @@ namespace LegacyOfficeConverter
         /// directory of the input file and with the same name, the only difference
         /// is the extension.
         /// </summary
-        void Convert(string inputPath, string outputPath);
+        bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat);
     }
 }

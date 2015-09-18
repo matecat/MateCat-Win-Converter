@@ -1,4 +1,4 @@
-﻿namespace LegacyOfficeConverter
+﻿namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
     interface IConverterSanityCheck
     {

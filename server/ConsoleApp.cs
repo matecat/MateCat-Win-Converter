@@ -3,8 +3,10 @@ using System.Configuration;
 using System.IO;
 using System.Net;
 using System.Threading;
+using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
+using Translated.MateCAT.LegacyOfficeConverter.Converters;
 
-namespace LegacyOfficeConverter
+namespace Translated
 {
     class ConsoleApp
     {
@@ -22,18 +24,11 @@ namespace LegacyOfficeConverter
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
             int queue = Int32.Parse(ConfigurationManager.AppSettings.Get("QueueSize"));
             int convertersPoolSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ConvertersPoolSize"));
-            string ocrConsolePath = ConfigurationManager.AppSettings.Get("OCRConsolePath");
 
             // Greet the user and recap params
             Console.WriteLine("Hello sir.");
             Console.WriteLine();
-            Console.WriteLine("Running LegacyOfficeConverter with options:");
-            Console.WriteLine("  cache: " + cache);
-            Console.WriteLine("  port : " + port);
-            Console.WriteLine("  queue: " + queue);
-            Console.WriteLine("  ocr console: " + ocrConsolePath);
-            Console.WriteLine("  parallelism: " + convertersPoolSize);
-            Console.WriteLine("Options are stored in the .config file in the same dir of this exe.");
+            Console.WriteLine("LegacyOfficeConverter is starting.");
             Console.WriteLine();
             Console.WriteLine("Guessed external IP is: " + GuessLocalIPv4().ToString());
             Console.WriteLine();
@@ -42,7 +37,8 @@ namespace LegacyOfficeConverter
             Console.WriteLine();
 
             // Start the conversion server in another thread
-            ConversionServer server = new ConversionServer(port, new DirectoryInfo(cache), queue, convertersPoolSize, ocrConsolePath);
+            IConverter converter = new ConvertersRouter(convertersPoolSize);
+            ConversionServer server = new ConversionServer(port, new DirectoryInfo(cache), queue, converter);
             server.Start();
 
             // Press ESC to stop the server. 

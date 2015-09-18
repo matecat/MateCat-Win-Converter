@@ -1,63 +1,33 @@
 ﻿using System;
-using System.IO;
+using System.Collections.Generic;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
     public class ConvertersRouter : IConverter, IDisposable
     {
-        private PooledConverter<WordConverter> wordConverter;
-        private PooledConverter<ExcelConverter> excelConverter;
-        private PooledConverter<PowerPointConverter> powerPointConverter;
-        private string OCRConsolePath; 
+        private List<IConverter> converters;
 
         private bool disposed = false;
         
         public ConvertersRouter(int poolSize, string OCRConsolePath = null)
         {
-            wordConverter = new PooledConverter<WordConverter>(poolSize);
-            excelConverter = new PooledConverter<ExcelConverter>(poolSize);
-            powerPointConverter = new PooledConverter<PowerPointConverter>(poolSize);
-            this.OCRConsolePath = OCRConsolePath;
+            converters = new List<IConverter>();
+            converters.Add(new PooledConverter<WordConverter>(poolSize));
+            converters.Add(new PooledConverter<ExcelConverter>(poolSize));
+            converters.Add(new PooledConverter<PowerPointConverter>(poolSize));
+            converters.Add(new OcrConverter());
+            converters.Add(new CloudConvert());
         }
 
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
-            string extension = Path.GetExtension(inputPath).ToLower();
-            
-            switch (extension)
+            bool converted = false;
+            foreach (IConverter converter in converters)
             {
-                case ".doc":
-                case ".dot":
-                case ".rtf":
-                case ".docx":
-                    wordConverter.Convert(inputPath, outputPath);
-                    break;
-
-                case ".xls":
-                case ".xlt":
-                    excelConverter.Convert(inputPath, outputPath);
-                    break;
-
-                case ".ppt":
-                case ".pps":
-                case ".pot":
-                    powerPointConverter.Convert(inputPath, outputPath);
-                    break;
-
-                case ".pdf":
-                    new PdfConverter(OCRConsolePath).Convert(inputPath, outputPath);
-                    break; 
-
-                case ".jpg":
-                case ".tiff":
-                case ".png":
-                    new OCRConsole(OCRConsolePath).Convert(inputPath, outputPath);
-                    break;
-
-                default:
-                    // Unsupported exception
-                    throw new Exception("FileConverter received an unsupported exception: " + extension + ".");
+                converted = converter.Convert(sourceFilePath, sourceFormat, targetFilePath, targetFormat);
+                if (converted) break;
             }
+            return converted;
         }
 
         
@@ -77,9 +47,14 @@ namespace LegacyOfficeConverter
                 return; 
 
             if (disposing) {
-                wordConverter.Dispose();
-                excelConverter.Dispose();
-                powerPointConverter.Dispose();         
+                foreach (IConverter converter in converters)
+                {
+                    if (converter is IDisposable)
+                    {
+                        ((IDisposable)converter).Dispose();
+                    }
+                }
+                converters.Clear();
             }
             disposed = true;
         }

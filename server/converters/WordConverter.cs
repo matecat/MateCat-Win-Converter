@@ -1,12 +1,15 @@
 ﻿using Microsoft.Office.Interop.Word;
 using System;
 using System.Runtime.InteropServices;
-using System.IO;
+using System.Linq;
+using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    class WordConverter : IConverter, IConverterSanityCheck, IDisposable
+    public class WordConverter : IConverter, IConverterSanityCheck, IDisposable
     {
+        private static int[] supportedFormats = { (int)FileTypes.docx, (int)FileTypes.doc, (int)FileTypes.dot, (int)FileTypes.rtf };
+
         private Application word;
 
         private bool disposed = false;
@@ -58,29 +61,52 @@ namespace LegacyOfficeConverter
             }
         }
 
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
+            // Check if the required conversion is supported
+            if (!supportedFormats.Contains(sourceFormat) || !supportedFormats.Contains(targetFormat))
+            {
+                return false;
+            }
+
+            // Covnersion supported, do it
             lock (word)
             {
                 Document doc = null;
                 try
                 {
-                    doc = word.Documents.Open(FileName: inputPath, ReadOnly: true);
+                    // Open the file
+                    doc = word.Documents.Open(FileName: sourceFilePath, ReadOnly: true);
                     if (doc == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    String outExtension = Path.GetExtension(outputPath).Replace(".","");
-                    WdSaveFormat outFormat;
-                    if (outExtension == "rtf")
-                        outFormat = WdSaveFormat.wdFormatRTF;
-                    //else if (outExtension == "doc")
-                    //    outFormat = WdSaveFormat.wdFormatDocument97;
-                    //else if (outExtension == "pdf")
-                    //    outFormat = WdSaveFormat.wdFormatPDF;
-                    else
-                        outFormat = WdSaveFormat.wdFormatXMLDocument;
-                    doc.SaveAs(FileName: outputPath, FileFormat: outFormat);
+
+                    // Select the target format
+                    WdSaveFormat msOfficeTargetFormat;
+                    switch (targetFormat)
+                    {
+                        case (int)FileTypes.docx:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatXMLDocument;
+                            break;
+                        case (int)FileTypes.doc:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatDocument97;
+                            break;
+                        case (int)FileTypes.dot:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatTemplate97;
+                            break;
+                        case (int)FileTypes.rtf:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatRTF;
+                            break;
+                        default:
+                            throw new Exception("Unexpected target format");
+                    }
+
+                    // Save the file in the target format
+                    doc.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
+                    
+                    // Everything ok, return the success to the caller
+                    return true;
                 }
                 finally
                 {

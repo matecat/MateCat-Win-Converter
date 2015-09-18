@@ -1,12 +1,15 @@
-﻿using Microsoft.Office.Core;
-using Microsoft.Office.Interop.PowerPoint;
+﻿using Microsoft.Office.Interop.PowerPoint;
 using System;
+using System.Linq;
 using System.Runtime.InteropServices;
+using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 
-namespace LegacyOfficeConverter
+namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    class PowerPointConverter : IConverter, IConverterSanityCheck, IDisposable
+    public class PowerPointConverter : IConverter, IConverterSanityCheck, IDisposable
     {
+        private static int[] supportedFormats = { (int)FileTypes.pptx, (int)FileTypes.ppt };
+
         private Application powerPoint;
 
         private bool disposed = false;
@@ -27,7 +30,7 @@ namespace LegacyOfficeConverter
                 Presentation ppt = null;
                 try
                 {
-                    ppt = powerPoint.Presentations.Add(MsoTriState.msoFalse);
+                    ppt = powerPoint.Presentations.Add(Microsoft.Office.Core.MsoTriState.msoFalse);
                     // Return true if the instance successfully created an empty document.
                     // The document will be gracefully closed and released in the finally block.
                     return (ppt != null);
@@ -59,19 +62,46 @@ namespace LegacyOfficeConverter
             }
         }
 
-        public void Convert(string inputPath, string outputPath)
+        public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
+            // Check if the required conversion is supported
+            if (!supportedFormats.Contains(sourceFormat) || !supportedFormats.Contains(targetFormat))
+            {
+                return false;
+            }
+
+            // Covnersion supported, do it
             lock (powerPoint)
             {
                 Presentation ppt = null;
                 try
                 {
-                    ppt = powerPoint.Presentations.Open(FileName: inputPath, ReadOnly: MsoTriState.msoTrue, WithWindow: MsoTriState.msoFalse);
+                    // Open the file
+                    ppt = powerPoint.Presentations.Open(FileName: sourceFilePath, ReadOnly: Microsoft.Office.Core.MsoTriState.msoTrue, WithWindow: Microsoft.Office.Core.MsoTriState.msoFalse);
                     if (ppt == null)
                     {
                         throw new Exception("FileConverter could not open the file.");
                     }
-                    ppt.SaveAs(FileName: outputPath, FileFormat: PpSaveAsFileType.ppSaveAsOpenXMLPresentation);
+
+                    // Select the target format
+                    PpSaveAsFileType msOfficeTargetFormat;
+                    switch (targetFormat)
+                    {
+                        case (int)FileTypes.pptx:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLPresentation;
+                            break;
+                        case (int)FileTypes.ppt:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsPresentation;
+                            break;
+                        default:
+                            throw new Exception("Unexpected target format");
+                    }
+
+                    // Save the file in the target format
+                    ppt.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
+
+                    // Everything ok, return the success to the caller
+                    return true;
                 }
                 finally
                 {
