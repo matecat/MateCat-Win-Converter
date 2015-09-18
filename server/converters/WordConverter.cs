@@ -6,25 +6,41 @@ using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 
 namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    public class WordConverter : IConverter, IConverterSanityCheck, IDisposable
+    public class WordConverter : IConverter, IDisposable
     {
         private static int[] supportedFormats = { (int)FileTypes.docx, (int)FileTypes.doc, (int)FileTypes.dot, (int)FileTypes.rtf };
 
+        private readonly object lockObj = new object();
         private Application word;
 
         private bool disposed = false;
 
         public WordConverter()
         {
-            // Start Word
+            CreateWordInstance();
+        }
+
+        private void CreateWordInstance()
+        {
             word = new Application();
             word.Visible = false;
         }
 
-
-        public bool isWorking()
+        private void DestroyWordInstance()
         {
-            lock (word)
+            try
+            {
+                word.Quit(SaveChanges: false);
+            }
+            catch { } // Ignore every exception
+
+            Marshal.ReleaseComObject(word);
+            word = null;
+        }
+
+        private bool IsWordWorking()
+        {
+            lock (lockObj)
             {
                 Document doc = null;
                 try
@@ -69,9 +85,16 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
                 return false;
             }
 
-            // Covnersion supported, do it
-            lock (word)
+            // Conversion supported, do it
+            lock (lockObj)
             {
+                // Ensure Word instance is working
+                if (!IsWordWorking())
+                {
+                    DestroyWordInstance();
+                    CreateWordInstance();
+                }
+
                 Document doc = null;
                 try
                 {
@@ -150,14 +173,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
                 // No managed resources to dispose
             }
 
-            try
-            {
-                word.Quit(SaveChanges: false);
-            }
-            catch { } // Ignore every exception
-
-            Marshal.ReleaseComObject(word);
-            word = null;
+            DestroyWordInstance();
 
             disposed = true;
         }

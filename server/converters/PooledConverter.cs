@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    class PooledConverter<T>: IConverter where T:IConverter, new()
+    public class PooledConverter<T>: IConverter where T:IConverter, new()
     {
         private BlockingCollection<T> pool;
 
@@ -31,20 +31,6 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
             try
             {
                 instance = pool.Take();
-                
-                // If possible, ensure the converter is working
-                if (instance is IConverterSanityCheck && ((IConverterSanityCheck)instance).isWorking() == false)
-                {
-                    // The converter is not working. Try to destroy it...
-                    if (instance is IDisposable)
-                        ((IDisposable)instance).Dispose();
-                    // ...and then create a fresh new one
-                    instance = new T();                        
-                    // TODO: check if also the fresh instance is working,
-                    // if not stop everything and notify administrators,
-                    // because something very strange is happening.
-                }
-
                 return instance.Convert(sourceFilePath, sourceFormat, targetFilePath, targetFormat);
             }
             finally

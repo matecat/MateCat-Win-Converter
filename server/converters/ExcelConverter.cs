@@ -6,24 +6,41 @@ using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 
 namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    public class ExcelConverter : IConverter, IConverterSanityCheck, IDisposable
+    public class ExcelConverter : IConverter, IDisposable
     {
         private static int[] supportedFormats = { (int)FileTypes.xls, (int)FileTypes.xlsx };
 
+        private readonly object lockObj = new object();
         private Application excel;
 
         private bool disposed = false;
 
         public ExcelConverter()
         {
-            // Start Excel
+            CreateExcelInstance();
+        }
+
+        private void CreateExcelInstance()
+        {
             excel = new Application();
             excel.Visible = false;
         }
 
-        public bool isWorking()
+        private void DestroyExcelInstance()
         {
-            lock (excel)
+            try
+            {
+                excel.Quit();
+            }
+            catch { } // Ignore every exception
+
+            Marshal.ReleaseComObject(excel);
+            excel = null;
+        }
+
+        private bool IsExcelWorking()
+        {
+            lock (lockObj)
             {
                 Workbook xls = null;
                 try
@@ -69,8 +86,15 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
             }
 
             // Covnersion supported, do it
-            lock (excel)
+            lock (lockObj)
             {
+                // Ensure Excel instance is working
+                if (!IsExcelWorking())
+                {
+                    DestroyExcelInstance();
+                    CreateExcelInstance();
+                }
+
                 Workbook xls = null;
                 try
                 {
@@ -143,14 +167,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
                 // No managed resources to dispose
             }
 
-            try
-            {
-                excel.Quit();
-            }
-            catch { } // Ignore every exception
-
-            Marshal.ReleaseComObject(excel);
-            excel = null;
+            DestroyExcelInstance();
 
             disposed = true;
         }

@@ -54,6 +54,7 @@
     <Compile Include="Converters\CloudConvertTest.cs" />
     <Compile Include="Converters\FakeConverter.cs" />
     <Compile Include="Converters\ExcelConverterTest.cs" />
+    <Compile Include="Converters\PooledConverterTest.cs" />
     <Compile Include="Converters\WordConverterTest.cs" />
     <Compile Include="Converters\PowerPointConverterTest.cs" />
     <Compile Include="Converters\ConversionTestHelper.cs" />

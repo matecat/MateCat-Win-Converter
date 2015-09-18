@@ -6,15 +6,21 @@ using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 
 namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-    public class PowerPointConverter : IConverter, IConverterSanityCheck, IDisposable
+    public class PowerPointConverter : IConverter, IDisposable
     {
         private static int[] supportedFormats = { (int)FileTypes.pptx, (int)FileTypes.ppt };
 
+        private readonly object lockObj = new object();
         private Application powerPoint;
 
         private bool disposed = false;
 
         public PowerPointConverter()
+        {
+            CreatePowerPointInstance();
+        }
+
+        private void CreatePowerPointInstance()
         {
             // Start Powerpoint
             powerPoint = new Application();
@@ -23,9 +29,22 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
             // document's open method.
         }
 
-        public bool isWorking()
+        private void DestroyPowerPointInstance()
         {
-            lock (powerPoint)
+            try
+            {
+                powerPoint.Quit();
+            }
+            catch { } // Ignore every exception
+
+            Marshal.ReleaseComObject(powerPoint);
+            powerPoint = null;
+        }
+
+
+        private bool IsPowerPointWorking()
+        {
+            lock (lockObj)
             {
                 Presentation ppt = null;
                 try
@@ -70,9 +89,16 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
                 return false;
             }
 
-            // Covnersion supported, do it
-            lock (powerPoint)
+            // Conversion supported, do it
+            lock (lockObj)
             {
+                // Ensure PowerPoint instance is working
+                if (!IsPowerPointWorking())
+                {
+                    DestroyPowerPointInstance();
+                    CreatePowerPointInstance();
+                }
+
                 Presentation ppt = null;
                 try
                 {
@@ -142,14 +168,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
                 // No managed resources to dispose
             }
 
-            try
-            {
-                powerPoint.Quit();
-            }
-            catch { } // Ignore every exception
-
-            Marshal.ReleaseComObject(powerPoint);
-            powerPoint = null;
+            DestroyPowerPointInstance();
 
             disposed = true;
         }

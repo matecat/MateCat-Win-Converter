@@ -67,7 +67,6 @@
   <ItemGroup>
     <Compile Include="ConversionServer\ConversionRequest.cs" />
     <Compile Include="Converters\CloudConvert.cs" />
-    <Compile Include="Converters\IConverterSanityCheck.cs" />
     <Compile Include="ConversionServer\StatusCodes.cs" />
     <Compile Include="Converters\ExcelConverter.cs" />
     <Compile Include="ConversionServer\FileTypes.cs" />
