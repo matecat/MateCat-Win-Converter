@@ -1,5 +1,4 @@
 ﻿using System;
-using System.IO;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
@@ -28,36 +27,44 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
 
         public void Start()
         {
+            // Start the server in another thread
             Thread t = new Thread(new ThreadStart(StartListening));
             t.Start();
+
+            // Wait the server is ready before returning to the caller
             while (!running)
             {
-                // Wait the server is ready before returning to the caller
                 Thread.Sleep(200);
             }
         }
 
         private void StartListening()
         {
-            Socket server = null;
+            Socket serverSocket = null;
             EndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
             try
             {
-                server = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                server.Blocking = true;
-                server.Bind(endPoint);
-                server.Listen(queueSize);
+                serverSocket = new Socket(endPoint.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                serverSocket.Blocking = true;
+                serverSocket.Bind(endPoint);
+                serverSocket.Listen(queueSize);
+
+                Console.WriteLine("Conversion server is ready to accept requests.");
 
                 running = true;
                 stopped = false;
 
-                Console.WriteLine("Conversion server is ready to accept requests.");
-
                 while (running)
                 {
-                    if (server.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
+                    // Calling socket.Accept blocks the thread until the next incoming connection,
+                    // making difficult to stop the server from another thread.
+                    // The Poll always returns after the specified delay elapsed, or immeidately
+                    // returns if it detects an incoming connection. It's the perfect method
+                    // to make this loop regularly che the running var, ending gracefully 
+                    // if requested.
+                    if (serverSocket.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
                     {
-                        Socket clientSocket = server.Accept();
+                        Socket clientSocket = serverSocket.Accept();
                         ConversionRequest connection = new ConversionRequest(clientSocket, converter);
                         Thread clientThread = new Thread(new ThreadStart(connection.Run));
                         clientThread.Start();
@@ -70,15 +77,17 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
             }
             finally
             {
+                if (serverSocket != null) serverSocket.Close();
                 running = false;
                 stopped = true;
-                if (server != null) server.Close();
             }
         }
 
         public void Stop()
         {
             running = false;
+
+            // Wait the server is stopped before returning to the caller
             while (!stopped)
             {
                 Thread.Sleep(200);

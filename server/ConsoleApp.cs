@@ -28,8 +28,10 @@ namespace Translated
             Console.WriteLine("Press ESC to stop the server and quit.");
             Console.WriteLine();
 
-            // Start the conversion server in another thread
+            // Create the main conversion class
             IConverter converter = new ConvertersRouter(convertersPoolSize);
+
+            // Then create and start the conversion server
             ConversionServer server = new ConversionServer(port, queue, converter);
             server.Start();
 
@@ -45,6 +47,7 @@ namespace Translated
             Console.WriteLine("ESC key pressed.");
             Console.WriteLine("Stopping the server...");
             server.Stop();
+
             Console.WriteLine("Server stopped.");
             Console.WriteLine("Good bye sir.");
             // Let the user read the goodbye message
