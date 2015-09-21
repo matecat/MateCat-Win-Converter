@@ -25,14 +25,14 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         [DeploymentItem(xlsFile, testFilesFolder)]
         public void XLStoXLSX()
         {
-            TestConversionDone(converter, xlsFile, FileTypes.xls, FileTypes.xlsx);
+            TestConversion(converter, xlsFile, FileTypes.xls, FileTypes.xlsx, true);
         }
 
         [TestMethod]
         [DeploymentItem(xlsxFile, testFilesFolder)]
         public void XLSXtoXLS()
         {
-            TestConversionDone(converter, xlsxFile, FileTypes.xlsx, FileTypes.xls);
+            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xls, true);
         }
 
     }

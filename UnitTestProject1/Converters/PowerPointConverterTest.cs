@@ -25,14 +25,14 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         [DeploymentItem(pptFile, testFilesFolder)]
         public void PPTtoPPTX()
         {
-            TestConversionDone(converter, pptFile, FileTypes.ppt, FileTypes.pptx);
+            TestConversion(converter, pptFile, FileTypes.ppt, FileTypes.pptx, true);
         }
 
         [TestMethod]
         [DeploymentItem(pptxFile, testFilesFolder)]
         public void PPTXtoPPT()
         {
-            TestConversionDone(converter, pptxFile, FileTypes.pptx, FileTypes.ppt);
+            TestConversion(converter, pptxFile, FileTypes.pptx, FileTypes.ppt, true);
         }
 
     }

@@ -25,28 +25,28 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         [DeploymentItem(docFile, testFilesFolder)]
         public void DOCtoDOCX()
         {
-            TestConversionDone(converter, docFile, FileTypes.doc, FileTypes.docx);
+            TestConversion(converter, docFile, FileTypes.doc, FileTypes.docx, true);
         }
 
         [TestMethod]
         [DeploymentItem(docxFile, testFilesFolder)]
         public void DOCXtoDOC()
         {
-            TestConversionDone(converter, docxFile, FileTypes.docx, FileTypes.doc);
+            TestConversion(converter, docxFile, FileTypes.docx, FileTypes.doc, true);
         }
 
         [TestMethod]
         [DeploymentItem(dotFile, testFilesFolder)]
         public void DOTtoDOCX()
         {
-            TestConversionDone(converter, dotFile, FileTypes.dot, FileTypes.docx);
+            TestConversion(converter, dotFile, FileTypes.dot, FileTypes.docx, true);
         }
 
         [TestMethod]
         [DeploymentItem(rtfFile, testFilesFolder)]
         public void RTFtoDOCX()
         {
-            TestConversionDone(converter, rtfFile, FileTypes.rtf, FileTypes.docx);
+            TestConversion(converter, rtfFile, FileTypes.rtf, FileTypes.docx, true);
         }
 
     }

@@ -24,6 +24,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         {
             word = new Application();
             word.Visible = false;
+            word.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         }
 
         private void DestroyWordInstance()

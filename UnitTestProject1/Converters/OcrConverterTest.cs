@@ -19,21 +19,21 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         [DeploymentItem(scannedPdfFile, testFilesFolder)]
         public void ScannedPDFtoDOCX()
         {
-            TestConversionDone(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx);
+            TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, true);
         }
 
         [TestMethod]
         [DeploymentItem(jpgFile, testFilesFolder)]
         public void JPGtoDOCX()
         {
-            TestConversionDone(converter, jpgFile, FileTypes.jpg, FileTypes.docx);
+            TestConversion(converter, jpgFile, FileTypes.jpg, FileTypes.docx, true);
         }
 
         [TestMethod]
         [DeploymentItem(scannedPdfFile, testFilesFolder)]
         public void OcrConverterSkipsRegularPDF()
         {
-            TestConversionSkipped(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx);
+            TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, false);
         }
 
     }

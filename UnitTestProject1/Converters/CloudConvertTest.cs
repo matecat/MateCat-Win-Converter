@@ -19,14 +19,14 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         [DeploymentItem(pdfFile, testFilesFolder)]
         public void RegularPDFtoDOCX()
         {
-            TestConversionDone(converter, pdfFile, FileTypes.pdf, FileTypes.docx);
+            TestConversion(converter, pdfFile, FileTypes.pdf, FileTypes.docx, true);
         }
 
         [TestMethod]
         [DeploymentItem(scannedPdfFile, testFilesFolder)]
         public void CloudConvertConverterSkipsScannedPDF()
         {
-            TestConversionSkipped(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx);
+            TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, false);
         }
 
     }

@@ -3,18 +3,22 @@ using System.IO;
 
 namespace Translated.MateCAT.LegacyOfficeConverter.Utils
 {
-    class TempFolder
+    public class TempFolder
     {
-        static readonly string rootTmpFolder;        
+        private static readonly string rootTmpFolder;
+        private static readonly object fileSystemLock = new object();
 
         static TempFolder() {
             rootTmpFolder = ConfigurationManager.AppSettings.Get("CachePath");
+            
             // If specified cache path is empty, use the system default temp dir
             if (rootTmpFolder == null || rootTmpFolder == "")
             {
                 rootTmpFolder = Path.GetTempPath();
             }
-            rootTmpFolder = EnsureCorrectPath(rootTmpFolder);
+
+            // Path canonicalization
+            rootTmpFolder = GetCanonicalPath(rootTmpFolder);
         }
 
 
@@ -22,8 +26,17 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Utils
 
         public TempFolder()
         {
-            dir = rootTmpFolder + Path.GetRandomFileName() + Path.DirectorySeparatorChar;
-            Directory.CreateDirectory(dir);
+            // This class will be heavily used in a threaded environment,
+            // be careful and make it thread safe
+            lock (fileSystemLock)
+            {
+                do
+                {
+                    dir = rootTmpFolder + Path.GetRandomFileName() + Path.DirectorySeparatorChar;
+                }
+                while (Directory.Exists(dir));
+                Directory.CreateDirectory(dir);
+            }
         }
 
         public string getFilePath(string filename)
@@ -38,10 +51,11 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Utils
 
 
         // Thanks to http://stackoverflow.com/a/20406065
-        private static string EnsureCorrectPath(string path)
+        private static string GetCanonicalPath(string path)
         {
-            path = path.Trim();
-            path = path.Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
+            path = path
+                .Trim()
+                .Replace(Path.AltDirectorySeparatorChar, Path.DirectorySeparatorChar);
 
             if (path.EndsWith(Path.DirectorySeparatorChar.ToString()))
             {

@@ -24,6 +24,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
         {
             excel = new Application();
             excel.Visible = false;
+            excel.DisplayAlerts = false;
         }
 
         private void DestroyExcelInstance()
@@ -120,7 +121,10 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
                     }
 
                     // Save the file in the target format
-                    xls.SaveAs(Filename: targetFilePath, FileFormat: msOfficeTargetFormat);
+                    xls.SaveAs(
+                        Filename: targetFilePath, 
+                        FileFormat: msOfficeTargetFormat, 
+                        ConflictResolution: XlSaveConflictResolution.xlLocalSessionChanges);
 
                     // Everything ok, return the success to the caller
                     return true;

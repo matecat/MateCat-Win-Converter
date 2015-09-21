@@ -1,8 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Threading;
 using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
 using static Translated.MateCAT.LegacyOfficeConverter.Converters.ConversionTestHelper;
 
@@ -11,61 +7,45 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
     [TestClass]
     public class PooledConverterTest
     {
-        const int parallelism = 10;
-        const int conversionQueueSize = 30;
-
-        static PooledConverter<WordConverter> converter;
-
-        [ClassInitialize]
-        public static void ClassInitialize(TestContext context)
-        {
-            converter = new PooledConverter<WordConverter>(parallelism);
-        }
-
-        [ClassCleanup]
-        public static void ClassCleanup()
-        {
-            converter.Dispose();
-        }
+        // The size of the converters' pool
+        const int convertersPoolSize = 10;
+        // The number of concurrent threads that will launch a conversion 
+        // on the same PooledConverter
+        const int concurrentConversions = 50;
 
         [TestMethod]
         [DeploymentItem(docFile, testFilesFolder)]
-        public void HeavyLoadDOCtoDOCX()
+        public void HeavyDOCtoDOCX()
         {
-            string sourceFile = Path.GetFullPath(docFile);
+            HeavyConversion<WordConverter>(docFile, FileTypes.doc, FileTypes.docx);
+        }
 
-            int successes = 0;
-            List<Thread> threads = new List<Thread>();
-            for (int i = 0; i < conversionQueueSize; i++)
+        [TestMethod]
+        [DeploymentItem(xlsFile, testFilesFolder)]
+        public void HeavyXLStoXLSX()
+        {
+            HeavyConversion<ExcelConverter>(xlsFile, FileTypes.xls, FileTypes.xlsx);
+        }
+
+        [TestMethod]
+        [DeploymentItem(pptFile, testFilesFolder)]
+        public void HeavyPPTtoPPTX()
+        {
+            HeavyConversion<PowerPointConverter>(pptFile, FileTypes.ppt, FileTypes.pptx);
+        }
+
+        private void HeavyConversion<T>(string sourceFile, FileTypes sourceFormat, FileTypes targetFormat) where T: IConverter, new()
+        {
+            PooledConverter<T> pooledConverter = new PooledConverter<T>(convertersPoolSize);
+
+            try
             {
-                Thread thread = new Thread(delegate () {
-                    string targetFile = Path.GetTempFileName();
-                    try
-                    {
-                        bool converted = converter.Convert(sourceFile, (int)FileTypes.doc, targetFile, (int)FileTypes.docx);
-                        if (converted) Interlocked.Increment(ref successes);
-                    }
-                    catch (Exception e) {
-                        Console.WriteLine(e);
-                    }
-                    finally
-                    {
-                        if (File.Exists(targetFile)) File.Delete(targetFile);                        
-                    }
-                });
-                threads.Add(thread);
+                TestHighConcurrencyConversion(pooledConverter, sourceFile, sourceFormat, targetFormat, concurrentConversions);
             }
-            foreach (var thread in threads)
+            finally
             {
-                thread.Start();
+                pooledConverter.Dispose();
             }
-            foreach (var thread in threads)
-            {
-                Console.WriteLine("ended");
-                thread.Join();
-            }
-            Console.WriteLine(successes);
-            Assert.AreEqual(conversionQueueSize, successes);
         }
 
     }

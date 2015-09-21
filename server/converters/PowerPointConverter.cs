@@ -27,6 +27,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
             // Setting the Visible property like Word and Excel causes an exception.
             // The PowerPoint visibility is controlled using a parameter in the
             // document's open method.
+            powerPoint.DisplayAlerts = PpAlertLevel.ppAlertsNone;
         }
 
         private void DestroyPowerPointInstance()
