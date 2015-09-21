@@ -13,17 +13,15 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
         private const int SocketPollMicroseconds = 250000;
 
         private int port;
-        private DirectoryInfo tmpDir;
         private int queueSize;
         private IConverter converter;
 
         private bool running = false;
         private bool stopped = true;
 
-        public ConversionServer(int port, DirectoryInfo tmpDir, int queueSize, IConverter converter)
+        public ConversionServer(int port, int queueSize, IConverter converter)
         {
             this.port = port;
-            this.tmpDir = tmpDir;
             this.queueSize = queueSize;
             this.converter = converter;
         }
@@ -41,8 +39,6 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
 
         private void StartListening()
         {
-            object fileSystemLock = new object();
-
             Socket server = null;
             EndPoint endPoint = new IPEndPoint(IPAddress.Any, port);
             try
@@ -62,7 +58,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
                     if (server.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
                     {
                         Socket clientSocket = server.Accept();
-                        ConversionRequest connection = new ConversionRequest(clientSocket, tmpDir, converter, fileSystemLock);
+                        ConversionRequest connection = new ConversionRequest(clientSocket, converter);
                         Thread clientThread = new Thread(new ThreadStart(connection.Run));
                         clientThread.Start();
                     }

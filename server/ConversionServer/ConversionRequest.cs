@@ -12,16 +12,12 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
         public const int BufferSize = 8192;
 
         private Socket socket;
-        private DirectoryInfo tmpDir;
         private IConverter fileConverter;
-        private object fileSystemLock;
 
-        public ConversionRequest(Socket socket, DirectoryInfo tmpDir, IConverter fileConverter, object fileSystemLock)
+        public ConversionRequest(Socket socket, IConverter fileConverter)
         {
             this.socket = socket;
-            this.tmpDir = tmpDir;
             this.fileConverter = fileConverter;
-            this.fileSystemLock = fileSystemLock;
         }
 
         public void Run()
@@ -72,14 +68,9 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
 
                 // 4) Read the source file and cache it on disk
 
-                // Very rare, but two concurrent threads can try to write on the same file:
-                // avoid it locking the FileStream opening block
-                lock (fileSystemLock)
-                {
-                    tempFolder = new TempFolder();
-                    sourceFilePath = tempFolder.getFilePath("source." + sourceFileType);
-                    sourceFileStream = new FileStream(sourceFilePath, FileMode.Create);
-                }
+                tempFolder = new TempFolder();
+                sourceFilePath = tempFolder.getFilePath("source." + sourceFileType);
+                sourceFileStream = new FileStream(sourceFilePath, FileMode.Create);
                 int totalBytesRead = 0;
                 Console.WriteLine(socket.RemoteEndPoint + " receiving file");
                 while (totalBytesRead < fileSize)

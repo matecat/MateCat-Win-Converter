@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Configuration;
-using System.IO;
 using System.Net;
 using System.Threading;
 using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
@@ -12,18 +11,11 @@ namespace Translated
     {
         static void Main(string[] args)
         {
-            string cache = ConfigurationManager.AppSettings.Get("CachePath");
-            // If specified cache path is empty, use the system default temp dir
-            if (cache == "")
-            {
-                cache = Path.GetTempPath();
-            }
-
             // If port is zero socket will attach on the first available port between 1024 and 5000 (see https://goo.gl/t4MBUr)
-            int port = Int32.Parse(ConfigurationManager.AppSettings.Get("Port"));
+            int port = int.Parse(ConfigurationManager.AppSettings.Get("Port"));
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
-            int queue = Int32.Parse(ConfigurationManager.AppSettings.Get("QueueSize"));
-            int convertersPoolSize = Int32.Parse(ConfigurationManager.AppSettings.Get("ConvertersPoolSize"));
+            int queue = int.Parse(ConfigurationManager.AppSettings.Get("QueueSize"));
+            int convertersPoolSize = int.Parse(ConfigurationManager.AppSettings.Get("ConvertersPoolSize"));
 
             // Greet the user and recap params
             Console.WriteLine("Hello sir.");
@@ -38,7 +30,7 @@ namespace Translated
 
             // Start the conversion server in another thread
             IConverter converter = new ConvertersRouter(convertersPoolSize);
-            ConversionServer server = new ConversionServer(port, new DirectoryInfo(cache), queue, converter);
+            ConversionServer server = new ConversionServer(port, queue, converter);
             server.Start();
 
             // Press ESC to stop the server. 
