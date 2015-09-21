@@ -11,8 +11,8 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
     {
         public const int BufferSize = 8192;
 
-        private Socket socket;
-        private IConverter fileConverter;
+        private readonly Socket socket;
+        private readonly IConverter fileConverter;
 
         public ConversionRequest(Socket socket, IConverter fileConverter)
         {
