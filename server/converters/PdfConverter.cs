@@ -13,12 +13,12 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
     {
 
         private OcrConverter ocrConsole;
-        private CloudConvert cloudConvert;
+        private RegularPdfConverter cloudConvert;
 
         public PdfConverter(string OCRConsolePath = null)
         {
             ocrConsole = new OcrConverter();
-            cloudConvert = new CloudConvert();
+            cloudConvert = new RegularPdfConverter();
         }
 
 

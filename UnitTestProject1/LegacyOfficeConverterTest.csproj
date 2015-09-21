@@ -51,7 +51,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Converters\OcrConverterTest.cs" />
-    <Compile Include="Converters\CloudConvertTest.cs" />
+    <Compile Include="Converters\RegularPdfConverterTest.cs" />
     <Compile Include="Converters\FakeConverter.cs" />
     <Compile Include="Converters\ExcelConverterTest.cs" />
     <Compile Include="Converters\PooledConverterTest.cs" />
@@ -104,7 +104,11 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <None Include="App.config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
       <ItemGroup>

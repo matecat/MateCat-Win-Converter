@@ -18,7 +18,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            testServer = new ConversionServer(testPort, new DirectoryInfo(Path.GetTempPath()), 100, new FakeConverter());
+            testServer = new ConversionServer(testPort, 100, new FakeConverter());
             testServer.Start();
         }
 

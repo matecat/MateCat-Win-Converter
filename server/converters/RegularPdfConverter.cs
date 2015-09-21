@@ -7,8 +7,7 @@ using static Translated.MateCAT.LegacyOfficeConverter.Utils.PdfAnalyzer;
 
 namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
-
-    public class CloudConvert : IConverter
+    public class RegularPdfConverter : IConverter
     {
         private static readonly string CloudConverterKey = ConfigurationManager.AppSettings.Get("CloudConvertKey");
 

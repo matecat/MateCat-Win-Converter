@@ -5,14 +5,14 @@ using static Translated.MateCAT.LegacyOfficeConverter.Converters.ConversionTestH
 namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 {
     [TestClass]
-    public class CloudConvertTest
+    public class RegularPdfConverterTest
     {
-        static CloudConvert converter;
+        static RegularPdfConverter converter;
 
         [ClassInitialize]
         public static void ClassInitialize(TestContext context)
         {
-            converter = new CloudConvert();
+            converter = new RegularPdfConverter();
         }
 
         [TestMethod]
@@ -24,7 +24,7 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
 
         [TestMethod]
         [DeploymentItem(scannedPdfFile, testFilesFolder)]
-        public void CloudConvertConverterSkipsScannedPDF()
+        public void RegularPdfConverterSkipsScannedPDF()
         {
             TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, false);
         }

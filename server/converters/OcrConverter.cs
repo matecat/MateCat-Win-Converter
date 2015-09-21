@@ -21,9 +21,6 @@ namespace Translated.MateCAT.LegacyOfficeConverter.Converters
             Console.WriteLine("WARNING: OCR Console executable doesn't exist; OCR conversions disabled");
         }
 
-        /// <summary>
-        /// Perform an OCR processing over the given file and output it in the same path
-        /// </summary>
         public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
         {
             // Check if the required conversion is supported

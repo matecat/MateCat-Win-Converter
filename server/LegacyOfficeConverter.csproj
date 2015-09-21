@@ -66,11 +66,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConversionServer\ConversionRequest.cs" />
-    <Compile Include="Converters\CloudConvert.cs" />
+    <Compile Include="Converters\RegularPdfConverter.cs" />
     <Compile Include="ConversionServer\StatusCodes.cs" />
     <Compile Include="Converters\ExcelConverter.cs" />
     <Compile Include="ConversionServer\FileTypes.cs" />
-    <Compile Include="Utils\FormUpload.cs" />
     <Compile Include="Converters\PdfConverter.cs" />
     <Compile Include="Converters\PooledConverter.cs" />
     <Compile Include="Converters\IConverter.cs" />
@@ -152,7 +151,7 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Converters\OCRConsole.cs" />
+    <Compile Include="Converters\OcrConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Libs\itextsharp.dll" />
