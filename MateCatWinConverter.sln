@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MateCatWinConverter", "MateCatWinConverter.csproj", "{AA79B5F8-AB96-44C1-8D63-D87CE4B3495E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MateCatWinConverter", "Source\MateCatWinConverter.csproj", "{AA79B5F8-AB96-44C1-8D63-D87CE4B3495E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MateCatWinConverterTest", "..\UnitTestProject1\MateCatWinConverterTest.csproj", "{A4C7FE70-86E2-414A-B02D-3A036891F5F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MateCatWinConverterTest", "Test\MateCatWinConverterTest.csproj", "{A4C7FE70-86E2-414A-B02D-3A036891F5F0}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

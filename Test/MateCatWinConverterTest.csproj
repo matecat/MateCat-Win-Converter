@@ -64,7 +64,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\server\MateCatWinConverter.csproj">
+    <ProjectReference Include="..\Source\MateCatWinConverter.csproj">
       <Project>{aa79b5f8-ab96-44c1-8d63-d87ce4b3495e}</Project>
       <Name>MateCatWinConverter</Name>
     </ProjectReference>

@@ -31,7 +31,7 @@ namespace Translated.MateCAT.WinConverter
             IConverter converter = new ConvertersRouter(convertersPoolSize);
 
             // Then create and start the conversion server
-            ConversionServer server = new ConversionServer(port, queue, converter);
+            ConversionServer.ConversionServer server = new ConversionServer.ConversionServer(port, queue, converter);
             server.Start();
 
             // Press ESC to stop the server. 
