@@ -3,10 +3,10 @@ using System.Configuration;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
-using static Translated.MateCAT.LegacyOfficeConverter.Utils.PdfAnalyzer;
+using Translated.MateCAT.WinConverter.ConversionServer;
+using static Translated.MateCAT.WinConverter.Utils.PdfAnalyzer;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+namespace Translated.MateCAT.WinConverter.Converters
 {
     public class OcrConverter : IConverter
     {

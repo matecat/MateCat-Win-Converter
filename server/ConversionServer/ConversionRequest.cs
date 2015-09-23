@@ -2,10 +2,10 @@
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
-using Translated.MateCAT.LegacyOfficeConverter.Converters;
-using Translated.MateCAT.LegacyOfficeConverter.Utils;
+using Translated.MateCAT.WinConverter.Converters;
+using Translated.MateCAT.WinConverter.Utils;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
+namespace Translated.MateCAT.WinConverter.ConversionServer
 {
     public class ConversionRequest
     {

@@ -3,9 +3,9 @@ using System.IO;
 using System.Net.Sockets;
 using System.Net;
 using System;
-using Translated.MateCAT.LegacyOfficeConverter.Converters;
+using Translated.MateCAT.WinConverter.Converters;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
+namespace Translated.MateCAT.WinConverter.ConversionServer
 {
     [TestClass]
     public class ConversionServerTest

@@ -1,7 +1,7 @@
 ﻿using System.Configuration;
 using System.IO;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Utils
+namespace Translated.MateCAT.WinConverter.Utils
 {
     public class TempFolder
     {

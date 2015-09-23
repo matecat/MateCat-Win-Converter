@@ -2,9 +2,9 @@
 using System;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
+using Translated.MateCAT.WinConverter.ConversionServer;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+namespace Translated.MateCAT.WinConverter.Converters
 {
     public class ExcelConverter : IConverter, IDisposable
     {

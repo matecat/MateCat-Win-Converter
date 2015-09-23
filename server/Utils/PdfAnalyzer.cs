@@ -1,6 +1,6 @@
 ﻿using iTextSharp.text.pdf;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Utils
+namespace Translated.MateCAT.WinConverter.Utils
 {
     public class PdfAnalyzer
     {

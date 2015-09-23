@@ -1,8 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
-using static Translated.MateCAT.LegacyOfficeConverter.Converters.ConversionTestHelper;
+using Translated.MateCAT.WinConverter.ConversionServer;
+using static Translated.MateCAT.WinConverter.Converters.ConversionTestHelper;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+namespace Translated.MateCAT.WinConverter.Converters
 {
     [TestClass]
     public class PowerPointConverterTest

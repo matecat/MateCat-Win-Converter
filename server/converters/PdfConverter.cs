@@ -5,9 +5,9 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
+using Translated.MateCAT.WinConverter.ConversionServer;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+namespace Translated.MateCAT.WinConverter.Converters
 {
     class PdfConverter : IConverter
     {

@@ -2,10 +2,9 @@
 using System.Configuration;
 using System.Net;
 using System.Threading;
-using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
-using Translated.MateCAT.LegacyOfficeConverter.Converters;
+using Translated.MateCAT.WinConverter.Converters;
 
-namespace Translated
+namespace Translated.MateCAT.WinConverter
 {
     class ConsoleApp
     {

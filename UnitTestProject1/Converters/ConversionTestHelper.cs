@@ -3,10 +3,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using Translated.MateCAT.LegacyOfficeConverter.ConversionServer;
-using Translated.MateCAT.LegacyOfficeConverter.Utils;
+using Translated.MateCAT.WinConverter.ConversionServer;
+using Translated.MateCAT.WinConverter.Utils;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+namespace Translated.MateCAT.WinConverter.Converters
 {
     class ConversionTestHelper
     {

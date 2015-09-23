@@ -1,6 +1,6 @@
 ﻿using System.IO;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+namespace Translated.MateCAT.WinConverter.Converters
 {
     class FakeConverter : IConverter
     {

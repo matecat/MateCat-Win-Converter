@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
+namespace Translated.MateCAT.WinConverter.ConversionServer
 {
     public enum FileTypes
     {

@@ -2,9 +2,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
-using Translated.MateCAT.LegacyOfficeConverter.Converters;
+using Translated.MateCAT.WinConverter.Converters;
 
-namespace Translated.MateCAT.LegacyOfficeConverter.ConversionServer
+namespace Translated.MateCAT.WinConverter.ConversionServer
 {
 
     public class ConversionServer

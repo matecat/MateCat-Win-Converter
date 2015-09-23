@@ -1,4 +1,4 @@
-﻿namespace Translated.MateCAT.LegacyOfficeConverter.Converters
+﻿namespace Translated.MateCAT.WinConverter.Converters
 {
     public interface IConverter
     {
