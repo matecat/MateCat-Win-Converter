@@ -18,7 +18,10 @@ namespace Translated.MateCAT.WinConverter.Converters
         static OcrConverter()
         {
             isInstalled = File.Exists(ocrConsolePath);
-            Console.WriteLine("WARNING: OCR Console executable doesn't exist; OCR conversions disabled");
+            if (!isInstalled)
+            {
+                Console.WriteLine("WARNING: can't find OCR Console executable in path \"" + ocrConsolePath + "\": OCR conversions disabled");
+            }
         }
 
         public bool Convert(string sourceFilePath, int sourceFormat, string targetFilePath, int targetFormat)
