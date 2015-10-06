@@ -21,7 +21,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         public const string xlsFile = testFilesFolder + "\\source.xls";
         public const string xlsxFile = testFilesFolder + "\\source.xlsx";
         public const string rtfFile = testFilesFolder + "\\source.rtf";
-        public const string jpgFile = testFilesFolder + "\\source.jpg";
+        public const string jpegFile = testFilesFolder + "\\source.jpeg";
         public const string pdfFile = testFilesFolder + "\\source.pdf";
         public const string scannedPdfFile = testFilesFolder + "\\scanned_source.pdf";
 

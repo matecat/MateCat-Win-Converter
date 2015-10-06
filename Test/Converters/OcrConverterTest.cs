@@ -23,10 +23,10 @@ namespace Translated.MateCAT.WinConverter.Converters
         }
 
         [TestMethod]
-        [DeploymentItem(jpgFile, testFilesFolder)]
-        public void JPGtoDOCX()
+        [DeploymentItem(jpegFile, testFilesFolder)]
+        public void JPEGtoDOCX()
         {
-            TestConversion(converter, jpgFile, FileTypes.jpg, FileTypes.docx, true);
+            TestConversion(converter, jpegFile, FileTypes.jpeg, FileTypes.docx, true);
         }
 
         [TestMethod]
