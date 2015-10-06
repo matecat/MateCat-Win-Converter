@@ -8,7 +8,7 @@ namespace Translated.MateCAT.WinConverter.Converters
 {
     public class ExcelConverter : IConverter, IDisposable
     {
-        private static int[] supportedFormats = { (int)FileTypes.xls, (int)FileTypes.xlsx };
+        private static int[] supportedFormats = { (int)FileTypes.xls, (int)FileTypes.xlt, (int)FileTypes.xlsx, (int)FileTypes.xlsm, (int)FileTypes.xltx, (int)FileTypes.xltm };
 
         private readonly object lockObj = new object();
         private Application excel;
@@ -110,11 +110,23 @@ namespace Translated.MateCAT.WinConverter.Converters
                     XlFileFormat msOfficeTargetFormat;
                     switch (targetFormat)
                     {
+                        case (int)FileTypes.xls:
+                            msOfficeTargetFormat = XlFileFormat.xlExcel8;
+                            break;
+                        case (int)FileTypes.xlt:
+                            msOfficeTargetFormat = XlFileFormat.xlTemplate8;
+                            break;
                         case (int)FileTypes.xlsx:
                             msOfficeTargetFormat = XlFileFormat.xlOpenXMLWorkbook;
                             break;
-                        case (int)FileTypes.xls:
-                            msOfficeTargetFormat = XlFileFormat.xlExcel8;
+                        case (int)FileTypes.xlsm:
+                            msOfficeTargetFormat = XlFileFormat.xlOpenXMLWorkbookMacroEnabled;
+                            break;
+                        case (int)FileTypes.xltx:
+                            msOfficeTargetFormat = XlFileFormat.xlOpenXMLTemplate;
+                            break;
+                        case (int)FileTypes.xltm:
+                            msOfficeTargetFormat = XlFileFormat.xlOpenXMLTemplateMacroEnabled;
                             break;
                         default:
                             throw new Exception("Unexpected target format");

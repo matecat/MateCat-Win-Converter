@@ -17,9 +17,23 @@ namespace Translated.MateCAT.WinConverter.Converters
 
         [TestMethod]
         [DeploymentItem(scannedPdfFile, testFilesFolder)]
+        public void OcrConverterSkipsRegularPDF()
+        {
+            TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, false);
+        }
+
+        [TestMethod]
+        [DeploymentItem(scannedPdfFile, testFilesFolder)]
         public void ScannedPDFtoDOCX()
         {
             TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(bmpFile, testFilesFolder)]
+        public void BMPtoDOCX()
+        {
+            TestConversion(converter, bmpFile, FileTypes.bmp, FileTypes.docx, true);
         }
 
         [TestMethod]
@@ -30,10 +44,17 @@ namespace Translated.MateCAT.WinConverter.Converters
         }
 
         [TestMethod]
-        [DeploymentItem(scannedPdfFile, testFilesFolder)]
-        public void OcrConverterSkipsRegularPDF()
+        [DeploymentItem(pngFile, testFilesFolder)]
+        public void PNGtoDOCX()
         {
-            TestConversion(converter, scannedPdfFile, FileTypes.pdf, FileTypes.docx, false);
+            TestConversion(converter, pngFile, FileTypes.png, FileTypes.docx, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(tiffFile, testFilesFolder)]
+        public void TIFFtoDOCX()
+        {
+            TestConversion(converter, tiffFile, FileTypes.tiff, FileTypes.docx, true);
         }
 
     }

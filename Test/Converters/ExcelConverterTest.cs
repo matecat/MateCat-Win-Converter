@@ -23,16 +23,47 @@ namespace Translated.MateCAT.WinConverter.Converters
 
         [TestMethod]
         [DeploymentItem(xlsFile, testFilesFolder)]
-        public void XLStoXLSX()
+        [DeploymentItem(xlsxFile, testFilesFolder)]
+        public void XLStoXLSXandBack()
         {
             TestConversion(converter, xlsFile, FileTypes.xls, FileTypes.xlsx, true);
+            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xls, true);
         }
 
         [TestMethod]
+        [DeploymentItem(xltFile, testFilesFolder)]
         [DeploymentItem(xlsxFile, testFilesFolder)]
-        public void XLSXtoXLS()
+        public void XLTtoXLSXandBack()
         {
-            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xls, true);
+            TestConversion(converter, xltFile, FileTypes.xlt, FileTypes.xlsx, true);
+            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xlt, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(xlsmFile, testFilesFolder)]
+        [DeploymentItem(xlsxFile, testFilesFolder)]
+        public void XLSMtoXLSXandBack()
+        {
+            TestConversion(converter, xlsFile, FileTypes.xlsm, FileTypes.xlsx, true);
+            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xlsm, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(xltxFile, testFilesFolder)]
+        [DeploymentItem(xlsxFile, testFilesFolder)]
+        public void XLTXtoXLSXandBack()
+        {
+            TestConversion(converter, xlsFile, FileTypes.xltx, FileTypes.xlsx, true);
+            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xltx, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(xltmFile, testFilesFolder)]
+        [DeploymentItem(xlsxFile, testFilesFolder)]
+        public void XLTMtoXLSXandBack()
+        {
+            TestConversion(converter, xlsFile, FileTypes.xltm, FileTypes.xlsx, true);
+            TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xltm, true);
         }
 
     }

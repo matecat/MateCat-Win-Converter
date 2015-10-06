@@ -8,7 +8,7 @@ namespace Translated.MateCAT.WinConverter.Converters
 {
     public class PowerPointConverter : IConverter, IDisposable
     {
-        private static int[] supportedFormats = { (int)FileTypes.pptx, (int)FileTypes.ppt };
+        private static int[] supportedFormats = { (int)FileTypes.ppt, (int)FileTypes.pps, (int)FileTypes.pot, (int)FileTypes.pptx, (int)FileTypes.pptm, (int)FileTypes.ppsx, (int)FileTypes.ppsm, (int)FileTypes.potx, (int)FileTypes.potm };
 
         private readonly object lockObj = new object();
         private Application powerPoint;
@@ -114,11 +114,32 @@ namespace Translated.MateCAT.WinConverter.Converters
                     PpSaveAsFileType msOfficeTargetFormat;
                     switch (targetFormat)
                     {
+                        case (int)FileTypes.ppt:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsPresentation;
+                            break;
+                        case (int)FileTypes.pps:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsShow;
+                            break;
+                        case (int)FileTypes.pot:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsTemplate;
+                            break;
                         case (int)FileTypes.pptx:
                             msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLPresentation;
                             break;
-                        case (int)FileTypes.ppt:
-                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsPresentation;
+                        case (int)FileTypes.pptm:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLPresentationMacroEnabled;
+                            break;
+                        case (int)FileTypes.ppsx:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLShow;
+                            break;
+                        case (int)FileTypes.ppsm:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLShowMacroEnabled;
+                            break;
+                        case (int)FileTypes.potx:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLTemplate;
+                            break;
+                        case (int)FileTypes.potm:
+                            msOfficeTargetFormat = PpSaveAsFileType.ppSaveAsOpenXMLTemplateMacroEnabled;
                             break;
                         default:
                             throw new Exception("Unexpected target format");

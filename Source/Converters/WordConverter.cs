@@ -8,7 +8,7 @@ namespace Translated.MateCAT.WinConverter.Converters
 {
     public class WordConverter : IConverter, IDisposable
     {
-        private static int[] supportedFormats = { (int)FileTypes.docx, (int)FileTypes.doc, (int)FileTypes.dot, (int)FileTypes.rtf };
+        private static int[] supportedFormats = { (int)FileTypes.doc, (int)FileTypes.dot, (int)FileTypes.docx, (int)FileTypes.docm, (int)FileTypes.dotx, (int)FileTypes.dotm, (int)FileTypes.rtf };
 
         private readonly object lockObj = new object();
         private Application word;
@@ -110,14 +110,23 @@ namespace Translated.MateCAT.WinConverter.Converters
                     WdSaveFormat msOfficeTargetFormat;
                     switch (targetFormat)
                     {
-                        case (int)FileTypes.docx:
-                            msOfficeTargetFormat = WdSaveFormat.wdFormatXMLDocument;
-                            break;
                         case (int)FileTypes.doc:
                             msOfficeTargetFormat = WdSaveFormat.wdFormatDocument97;
                             break;
                         case (int)FileTypes.dot:
                             msOfficeTargetFormat = WdSaveFormat.wdFormatTemplate97;
+                            break;
+                        case (int)FileTypes.docx:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatXMLDocument;
+                            break;
+                        case (int)FileTypes.docm:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatXMLDocumentMacroEnabled;
+                            break;
+                        case (int)FileTypes.dotx:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatXMLTemplate;
+                            break;
+                        case (int)FileTypes.dotm:
+                            msOfficeTargetFormat = WdSaveFormat.wdFormatXMLTemplateMacroEnabled;
                             break;
                         case (int)FileTypes.rtf:
                             msOfficeTargetFormat = WdSaveFormat.wdFormatRTF;

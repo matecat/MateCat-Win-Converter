@@ -13,7 +13,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         private static readonly string ocrConsolePath = ConfigurationManager.AppSettings.Get("OCRConsolePath");
         private static readonly bool isInstalled;
 
-        private static readonly int[] validSourceExtensions = { (int)FileTypes.jpeg, (int)FileTypes.png, (int)FileTypes.tiff, (int)FileTypes.pdf };
+        private static readonly int[] validSourceExtensions = { (int)FileTypes.bmp, (int)FileTypes.jpeg, (int)FileTypes.png, (int)FileTypes.gif, (int)FileTypes.tiff, (int)FileTypes.pdf };
 
         static OcrConverter()
         {

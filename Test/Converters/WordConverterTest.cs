@@ -23,30 +23,56 @@ namespace Translated.MateCAT.WinConverter.Converters
 
         [TestMethod]
         [DeploymentItem(docFile, testFilesFolder)]
-        public void DOCtoDOCX()
+        [DeploymentItem(docxFile, testFilesFolder)]
+        public void DOCtoDOCXandBack()
         {
             TestConversion(converter, docFile, FileTypes.doc, FileTypes.docx, true);
-        }
-
-        [TestMethod]
-        [DeploymentItem(docxFile, testFilesFolder)]
-        public void DOCXtoDOC()
-        {
             TestConversion(converter, docxFile, FileTypes.docx, FileTypes.doc, true);
         }
 
         [TestMethod]
         [DeploymentItem(dotFile, testFilesFolder)]
-        public void DOTtoDOCX()
+        [DeploymentItem(docxFile, testFilesFolder)]
+        public void DOTtoDOCXandBack()
         {
             TestConversion(converter, dotFile, FileTypes.dot, FileTypes.docx, true);
+            TestConversion(converter, docxFile, FileTypes.docx, FileTypes.dot, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(docmFile, testFilesFolder)]
+        [DeploymentItem(docxFile, testFilesFolder)]
+        public void DOCMtoDOCXandBack()
+        {
+            TestConversion(converter, docmFile, FileTypes.docm, FileTypes.docx, true);
+            TestConversion(converter, docxFile, FileTypes.docx, FileTypes.docm, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(dotxFile, testFilesFolder)]
+        [DeploymentItem(docxFile, testFilesFolder)]
+        public void DOTXtoDOCXandBack()
+        {
+            TestConversion(converter, dotxFile, FileTypes.dotx, FileTypes.docx, true);
+            TestConversion(converter, docxFile, FileTypes.docx, FileTypes.dotx, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(dotmFile, testFilesFolder)]
+        [DeploymentItem(docxFile, testFilesFolder)]
+        public void DOTMtoDOCXandBack()
+        {
+            TestConversion(converter, dotmFile, FileTypes.dotm, FileTypes.docx, true);
+            TestConversion(converter, docxFile, FileTypes.docx, FileTypes.dotm, true);
         }
 
         [TestMethod]
         [DeploymentItem(rtfFile, testFilesFolder)]
-        public void RTFtoDOCX()
+        [DeploymentItem(docxFile, testFilesFolder)]
+        public void RTFtoDOCXandBack()
         {
             TestConversion(converter, rtfFile, FileTypes.rtf, FileTypes.docx, true);
+            TestConversion(converter, docxFile, FileTypes.docx, FileTypes.rtf, true);
         }
 
     }

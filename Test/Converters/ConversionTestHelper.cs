@@ -13,17 +13,55 @@ namespace Translated.MateCAT.WinConverter.Converters
         private static readonly object fileSystemLock = new object();
 
         public const string testFilesFolder = "TestFiles";
-        public const string pptFile = testFilesFolder + "\\source.ppt";
-        public const string pptxFile = testFilesFolder + "\\source.pptx";
+
+        // Word files
+
         public const string docFile = testFilesFolder + "\\source.doc";
-        public const string docxFile = testFilesFolder + "\\source.docx";
         public const string dotFile = testFilesFolder + "\\source.dot";
-        public const string xlsFile = testFilesFolder + "\\source.xls";
-        public const string xlsxFile = testFilesFolder + "\\source.xlsx";
+
+        public const string docxFile = testFilesFolder + "\\source.docx";
+        public const string docmFile = testFilesFolder + "\\source.docm";
+
+        public const string dotxFile = testFilesFolder + "\\source.dotx";
+        public const string dotmFile = testFilesFolder + "\\source.dotm";
+
         public const string rtfFile = testFilesFolder + "\\source.rtf";
-        public const string jpegFile = testFilesFolder + "\\source.jpeg";
+
+        // Excel files
+
+        public const string xlsFile = testFilesFolder + "\\source.xls";
+        public const string xltFile = testFilesFolder + "\\source.xlt";
+
+        public const string xlsxFile = testFilesFolder + "\\source.xlsx";
+        public const string xlsmFile = testFilesFolder + "\\source.xlsm";
+
+        public const string xltxFile = testFilesFolder + "\\source.xltx";
+        public const string xltmFile = testFilesFolder + "\\source.xltm";
+
+        // Powerpoint files
+
+        public const string pptFile = testFilesFolder + "\\source.ppt";
+        public const string ppsFile = testFilesFolder + "\\source.pps";
+        public const string potFile = testFilesFolder + "\\source.pot";
+
+        public const string pptxFile = testFilesFolder + "\\source.pptx";
+        public const string pptmFile = testFilesFolder + "\\source.pptm";
+
+        public const string ppsxFile = testFilesFolder + "\\source.ppsx";
+        public const string ppsmFile = testFilesFolder + "\\source.ppsm";
+
+        public const string potxFile = testFilesFolder + "\\source.potx";
+        public const string potmFile = testFilesFolder + "\\source.potm";
+
+        // PDF & OCR files
+
         public const string pdfFile = testFilesFolder + "\\source.pdf";
         public const string scannedPdfFile = testFilesFolder + "\\scanned_source.pdf";
+        public const string bmpFile = testFilesFolder + "\\source.bmp";
+        public const string jpegFile = testFilesFolder + "\\source.jpeg";
+        public const string pngFile = testFilesFolder + "\\source.png";
+        public const string gifFile = testFilesFolder + "\\source.gif";
+        public const string tiffFile = testFilesFolder + "\\source.tiff";
 
         public static void TestConversion(IConverter converter, string sourceFileName, FileTypes sourceFormat, FileTypes targetFormat, bool assertSuccess)
         {
