@@ -70,7 +70,6 @@
     <Compile Include="ConversionServer\StatusCodes.cs" />
     <Compile Include="Converters\ExcelConverter.cs" />
     <Compile Include="ConversionServer\FileTypes.cs" />
-    <Compile Include="Converters\PdfConverter.cs" />
     <Compile Include="Converters\PooledConverter.cs" />
     <Compile Include="Converters\IConverter.cs" />
     <Compile Include="Converters\PowerPointConverter.cs" />
