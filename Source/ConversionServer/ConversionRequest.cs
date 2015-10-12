@@ -29,7 +29,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             int bytesRead, bytesSent;
             byte[] buffer = new byte[BufferSize];
 
-            log.Info("New request received");
+            log.Info("new request received");
 
             TempFolder tempFolder = null;
             string sourceFilePath = null;
@@ -146,7 +146,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                         bytesSent = socket.Send(buffer, bytesRead, 0);
                     }
                 }
-                log.Info("target sent file");
+                log.Info("target file sent");
                 targetFileStream.Close();
 
                 // If execution arrives here, everything went well!
