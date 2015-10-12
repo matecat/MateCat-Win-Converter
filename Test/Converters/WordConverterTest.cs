@@ -1,5 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System;
+using System.IO;
 using Translated.MateCAT.WinConverter.ConversionServer;
+using Translated.MateCAT.WinConverter.Utils;
 using static Translated.MateCAT.WinConverter.Converters.ConversionTestHelper;
 
 namespace Translated.MateCAT.WinConverter.Converters
@@ -73,6 +76,13 @@ namespace Translated.MateCAT.WinConverter.Converters
         {
             TestConversion(converter, rtfFile, FileTypes.rtf, FileTypes.docx, true);
             TestConversion(converter, docxFile, FileTypes.docx, FileTypes.rtf, true);
+        }
+
+        [TestMethod]
+        [DeploymentItem(advancedDocxFile, testFilesFolder)]
+        public void AdvancedDOCXtoDOC()
+        {
+            TestConversion(converter, advancedDocxFile, FileTypes.docx, FileTypes.doc, true);
         }
 
     }

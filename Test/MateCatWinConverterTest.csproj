@@ -147,6 +147,9 @@
     <EmbeddedResource Include="TestFiles\source.pptm">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
+    <EmbeddedResource Include="TestFiles\source_advanced.docx">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="TestFiles\source.jpeg">
@@ -163,7 +166,9 @@
     <EmbeddedResource Include="TestFiles\source.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
-    <Content Include="TestFiles\source.tiff" />
+    <EmbeddedResource Include="TestFiles\source.tiff">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">

@@ -21,6 +21,8 @@ namespace Translated.MateCAT.WinConverter.Converters
 
         public const string docxFile = testFilesFolder + "\\source.docx";
         public const string docmFile = testFilesFolder + "\\source.docm";
+        public const string advancedDocxFile = testFilesFolder + "\\source_advanced.docx";
+
 
         public const string dotxFile = testFilesFolder + "\\source.dotx";
         public const string dotmFile = testFilesFolder + "\\source.dotm";
@@ -77,14 +79,14 @@ namespace Translated.MateCAT.WinConverter.Converters
             if (assertSuccess)
             {
                 // Check that converter returned true
-                Assert.AreEqual(true, converted);
+                Assert.IsTrue(converted);
                 // Check that converter created the target file and it's not empty
                 Assert.AreNotEqual(0, new FileInfo(targetFile).Length);
             }
             else
             {
                 // Check that converter returned false
-                Assert.AreEqual(false, converted);
+                Assert.IsFalse(converted);
             }
 
             // Delete the temp file created
