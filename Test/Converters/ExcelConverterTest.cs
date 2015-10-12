@@ -66,5 +66,13 @@ namespace Translated.MateCAT.WinConverter.Converters
             TestConversion(converter, xlsxFile, FileTypes.xlsx, FileTypes.xltm, true);
         }
 
+        [TestMethod]
+        [DeploymentItem(brokenXlsxFile, testFilesFolder)]
+        [ExpectedException(typeof(BrokenSourceException))]
+        public void BrokenXLSXtoXLS()
+        {
+            TestConversion(converter, brokenXlsxFile, FileTypes.xlsx, FileTypes.xls, false);
+        }
+
     }
 }

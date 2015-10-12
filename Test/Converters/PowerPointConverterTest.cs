@@ -75,5 +75,13 @@ namespace Translated.MateCAT.WinConverter.Converters
             TestConversion(converter, pptxFile, FileTypes.pptx, FileTypes.potm, true);
         }
 
+        [TestMethod]
+        [DeploymentItem(brokenPptxFile, testFilesFolder)]
+        [ExpectedException(typeof(BrokenSourceException))]
+        public void BrokenPPTXtoPPT()
+        {
+            TestConversion(converter, brokenPptxFile, FileTypes.pptx, FileTypes.ppt, false);
+        }
+
     }
 }

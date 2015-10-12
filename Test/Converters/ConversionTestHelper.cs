@@ -21,6 +21,8 @@ namespace Translated.MateCAT.WinConverter.Converters
 
         public const string docxFile = testFilesFolder + "\\source.docx";
         public const string docmFile = testFilesFolder + "\\source.docm";
+
+        public const string brokenDocxFile = testFilesFolder + "\\broken.docx";
         public const string advancedDocxFile = testFilesFolder + "\\source_advanced.docx";
 
 
@@ -37,6 +39,8 @@ namespace Translated.MateCAT.WinConverter.Converters
         public const string xlsxFile = testFilesFolder + "\\source.xlsx";
         public const string xlsmFile = testFilesFolder + "\\source.xlsm";
 
+        public const string brokenXlsxFile = testFilesFolder + "\\broken.xlsx";
+
         public const string xltxFile = testFilesFolder + "\\source.xltx";
         public const string xltmFile = testFilesFolder + "\\source.xltm";
 
@@ -48,6 +52,8 @@ namespace Translated.MateCAT.WinConverter.Converters
 
         public const string pptxFile = testFilesFolder + "\\source.pptx";
         public const string pptmFile = testFilesFolder + "\\source.pptm";
+
+        public const string brokenPptxFile = testFilesFolder + "\\broken.pptx";
 
         public const string ppsxFile = testFilesFolder + "\\source.ppsx";
         public const string ppsmFile = testFilesFolder + "\\source.ppsm";
