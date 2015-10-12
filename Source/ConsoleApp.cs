@@ -1,13 +1,20 @@
-﻿using System;
+﻿using log4net;
+using log4net.Config;
+using System;
 using System.Configuration;
 using System.Net;
 using System.Threading;
 using Translated.MateCAT.WinConverter.Converters;
+using static System.Reflection.MethodBase;
+
+[assembly: XmlConfigurator(Watch = true)]
 
 namespace Translated.MateCAT.WinConverter
 {
     class ConsoleApp
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         static void Main(string[] args)
         {
             // If port is zero socket will attach on the first available port between 1024 and 5000 (see https://goo.gl/t4MBUr)
@@ -17,15 +24,12 @@ namespace Translated.MateCAT.WinConverter
             int convertersPoolSize = int.Parse(ConfigurationManager.AppSettings.Get("ConvertersPoolSize"));
 
             // Greet the user and recap params
-            Console.WriteLine("Hello sir.");
-            Console.WriteLine();
-            Console.WriteLine("LegacyOfficeConverter is starting.");
-            Console.WriteLine();
+            Console.WriteLine("MateCAT WinConverter!");
             Console.WriteLine("Guessed external IP is: " + GuessLocalIPv4().ToString());
+            Console.WriteLine("Press ESC to stop the server and quit");
             Console.WriteLine();
-            Console.WriteLine("Starting conversion server...");
-            Console.WriteLine("Press ESC to stop the server and quit.");
-            Console.WriteLine();
+
+            log.Info("MateCAT WinConverter is starting");
 
             // Create the main conversion class
             IConverter converter = new ConvertersRouter(convertersPoolSize);
@@ -42,13 +46,10 @@ namespace Translated.MateCAT.WinConverter
             }
 
             // ESC key pressed, shutdown everything and say goodbye
-            Console.WriteLine();
-            Console.WriteLine("ESC key pressed.");
-            Console.WriteLine("Stopping the server...");
+            log.Info("User asked to stop");
             server.Stop();
 
-            Console.WriteLine("Server stopped.");
-            Console.WriteLine("Good bye sir.");
+            Console.WriteLine("Closing MateCAT WinConverter right now");
             // Let the user read the goodbye message
             Thread.Sleep(1000);
         }

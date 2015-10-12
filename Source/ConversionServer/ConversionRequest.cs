@@ -1,7 +1,9 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
+using static System.Reflection.MethodBase;
 using Translated.MateCAT.WinConverter.Converters;
 using Translated.MateCAT.WinConverter.Utils;
 
@@ -9,6 +11,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 {
     public class ConversionRequest
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         public const int BufferSize = 8192;
 
         private readonly Socket socket;
@@ -25,7 +29,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             int bytesRead, bytesSent;
             byte[] buffer = new byte[BufferSize];
 
-            Console.WriteLine(socket.RemoteEndPoint + " connected");
+            log.Info("New request received");
 
             TempFolder tempFolder = null;
             string sourceFilePath = null;
@@ -39,8 +43,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
                 int fileTypeValue = ReceiveInt();
                 FileTypes sourceFileType = (FileTypes)fileTypeValue;
-                Console.WriteLine(socket.RemoteEndPoint + " received input file type: " + fileTypeValue + " ("+ sourceFileType +")");
-                if (!FileTypes.IsDefined(typeof(FileTypes), sourceFileType))
+                log.Info("received source file type: " + fileTypeValue + " ("+ sourceFileType +")");
+                if (!Enum.IsDefined(typeof(FileTypes), sourceFileType))
                 {
                     throw new ProtocolException(StatusCodes.BadFileType);
                 }
@@ -50,8 +54,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
                 int outputFileTypeValue = ReceiveInt();
                 FileTypes targetFileType = (FileTypes)outputFileTypeValue;
-                Console.WriteLine(socket.RemoteEndPoint + " received output file type: " + outputFileTypeValue + " (" + targetFileType + ")");
-                if (!FileTypes.IsDefined(typeof(FileTypes), targetFileType))
+                log.Info("received source file type: " + outputFileTypeValue + " (" + targetFileType + ")");
+                if (!Enum.IsDefined(typeof(FileTypes), targetFileType))
                 {
                     throw new ProtocolException(StatusCodes.BadFileType);
                 }
@@ -60,7 +64,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 // 3) Read the source file size
 
                 int fileSize = ReceiveInt();
-                Console.WriteLine(socket.RemoteEndPoint + " received file size: " + fileSize);
+                log.Info("received source file size: " + fileSize);
                 if (fileSize <= 0)
                 {
                     throw new ProtocolException(StatusCodes.BadFileSize);
@@ -72,7 +76,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 sourceFilePath = tempFolder.getFilePath("source." + sourceFileType);
                 sourceFileStream = new FileStream(sourceFilePath, FileMode.Create);
                 int totalBytesRead = 0;
-                Console.WriteLine(socket.RemoteEndPoint + " receiving file");
+                log.Info("receiving source file...");
                 while (totalBytesRead < fileSize)
                 {
                     bytesRead = socket.Receive(buffer, BufferSize, 0);
@@ -80,21 +84,23 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                     totalBytesRead += bytesRead;
                 }
                 sourceFileStream.Close();
-                Console.WriteLine(socket.RemoteEndPoint + " received file");
+                log.Info("source file received");
 
 
                 // 5) Convert the source file
-                Console.WriteLine(socket.RemoteEndPoint + " converting file");
                 bool converted = false;
                 try
                 {
                     targetFilePath = tempFolder.getFilePath("target." + targetFileType);
                     converted = fileConverter.Convert(sourceFilePath, (int)sourceFileType, targetFilePath, (int)targetFileType);
-                    Console.WriteLine(socket.RemoteEndPoint + " converted file");
                 }
-                catch (Exception e)
+                catch (BrokenSourceException e)
                 {
-                    throw new ProtocolException(StatusCodes.BrokenFile, e);
+                    throw new ProtocolException(StatusCodes.BrokenSourceFile, e);
+                }
+                catch (ConversionException e)
+                {
+                    throw new ProtocolException(StatusCodes.ConversionError, e);
                 }
                 if (!converted)
                 {
@@ -105,7 +111,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 // 6) Send back the ok status code
 
                 SendInt((int)StatusCodes.Ok);
-                Console.WriteLine(socket.RemoteEndPoint + " sent status code: 0");
+                log.Info("sent status code: 0 (ok!)");
 
 
                 // 7) Send back the converted file size
@@ -113,21 +119,21 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 int filesize = 0;
                 try
                 {
-                    filesize = (int)new System.IO.FileInfo(targetFilePath).Length;
+                    filesize = (int)new FileInfo(targetFilePath).Length;
                 }
                 catch (OverflowException e)
                 {
                     throw new ProtocolException(StatusCodes.ConvertedFileTooBig, e);
                 }
                 SendInt(filesize);
-                Console.WriteLine(socket.RemoteEndPoint + " sent converted file size: " + filesize);
+                log.Info("sent target file size: " + filesize);
 
 
                 // 8) Send back the converted file
 
                 buffer = new byte[BufferSize];
                 targetFileStream = new FileStream(targetFilePath, FileMode.Open);
-                Console.WriteLine(socket.RemoteEndPoint + " sending file");
+                log.Info("sending target file...");
                 while (true)
                 {
                     bytesRead = targetFileStream.Read(buffer, 0, BufferSize);
@@ -140,7 +146,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                         bytesSent = socket.Send(buffer, bytesRead, 0);
                     }
                 }
-                Console.WriteLine(socket.RemoteEndPoint + " sent file");
+                log.Info("target sent file");
                 targetFileStream.Close();
 
                 // If execution arrives here, everything went well!
@@ -149,19 +155,19 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             {
                 try
                 {
-                    Console.WriteLine(socket.RemoteEndPoint + " error: " + e);
-                    SendInt((int)e.ErrorCode);
-                    Console.WriteLine(socket.RemoteEndPoint + " sent error");
+                    log.Error("Protocol exception", e);
+                    SendInt((int)e.statusCode);
+                    log.Info("sent status code: " + (int)e.statusCode + "(" + e.statusCode + ")");
                 }
                 catch { }
             }
             catch (Exception e)
             {
-                Console.WriteLine(socket.RemoteEndPoint + "error\n" + e);
+                log.Error("General Exception", e);
                 try
                 {
                     SendInt((int)StatusCodes.InternalServerError);
-                    Console.WriteLine(socket.RemoteEndPoint + " sent error");
+                    log.Info("sent status code: " + (int)StatusCodes.InternalServerError + "(" + StatusCodes.InternalServerError + ")");
                 }
                 catch { }
             }
@@ -186,7 +192,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 // Wait that client closes connection
                 //socket.Receive(new byte[1], SocketFlags.Peek);
                 socket.Close();
-                Console.WriteLine(remoteEndPoint + " closed connection");
+                log.Info("connection closed");
             }
         }
 

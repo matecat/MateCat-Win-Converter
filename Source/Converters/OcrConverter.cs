@@ -5,11 +5,15 @@ using System.IO;
 using System.Linq;
 using Translated.MateCAT.WinConverter.ConversionServer;
 using static Translated.MateCAT.WinConverter.Utils.PdfAnalyzer;
+using log4net;
+using static System.Reflection.MethodBase;
 
 namespace Translated.MateCAT.WinConverter.Converters
 {
     public class OcrConverter : IConverter
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         private static readonly string ocrConsolePath = ConfigurationManager.AppSettings.Get("OCRConsolePath");
         private static readonly bool isInstalled;
 
@@ -20,7 +24,7 @@ namespace Translated.MateCAT.WinConverter.Converters
             isInstalled = File.Exists(ocrConsolePath);
             if (!isInstalled)
             {
-                Console.WriteLine("WARNING: can't find OCR Console executable in path \"" + ocrConsolePath + "\": OCR conversions disabled");
+                log.Info("Can't find OCR Console executable in path \"" + ocrConsolePath + "\": OCR conversions will be skipped");
             }
         }
 
@@ -40,7 +44,7 @@ namespace Translated.MateCAT.WinConverter.Converters
             // If OCR Console is not installed, skip the conversion
             if (!isInstalled)
             {
-                Console.WriteLine("Skipped OCR Conversion because OCR Console is missing");
+                log.Info("Skipped OCR Conversion because OCR Console is missing");
                 return false;
             }
 
@@ -61,7 +65,7 @@ namespace Translated.MateCAT.WinConverter.Converters
             // Check errors
             if (process.ExitCode != 0)
             {
-                throw new Exception("OCR Console returned exit code " + process.ExitCode);
+                throw new ConversionException("OCR Console returned exit code " + process.ExitCode);
             }
 
             // Everything ok, return the success to the caller        

@@ -1,14 +1,17 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using Translated.MateCAT.WinConverter.Converters;
+using static System.Reflection.MethodBase;
 
 namespace Translated.MateCAT.WinConverter.ConversionServer
 {
-
     public class ConversionServer
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         private const int SocketPollMicroseconds = 250000;
 
         private int port;
@@ -49,7 +52,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 serverSocket.Bind(endPoint);
                 serverSocket.Listen(queueSize);
 
-                Console.WriteLine("Conversion server is ready to accept requests.");
+                log.Info("Server started, listening on port " + port);
 
                 running = true;
                 stopped = false;
@@ -73,13 +76,14 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                log.Error("Exception", e);
             }
             finally
             {
                 if (serverSocket != null) serverSocket.Close();
                 running = false;
                 stopped = true;
+                log.Info("Server stopped");
             }
         }
 

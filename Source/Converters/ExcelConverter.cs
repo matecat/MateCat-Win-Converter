@@ -3,11 +3,15 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Translated.MateCAT.WinConverter.ConversionServer;
+using log4net;
+using static System.Reflection.MethodBase;
 
 namespace Translated.MateCAT.WinConverter.Converters
 {
     public class ExcelConverter : IConverter, IDisposable
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         private static int[] supportedFormats = { (int)FileTypes.xls, (int)FileTypes.xlt, (int)FileTypes.xlsx, (int)FileTypes.xlsm, (int)FileTypes.xltx, (int)FileTypes.xltm };
 
         private readonly object lockObj = new object();
@@ -23,6 +27,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         private void CreateExcelInstance()
         {
             excel = new Application();
+            log.Info("Excel instance started");
             excel.Visible = false;
             excel.DisplayAlerts = false;
         }
@@ -32,8 +37,12 @@ namespace Translated.MateCAT.WinConverter.Converters
             try
             {
                 excel.Quit();
+                log.Info("Excel instance destroyed");
             }
-            catch { } // Ignore every exception
+            catch (Exception e)
+            {
+                log.Warn("Exception while closing Excel instance: check that the instance is properly closed", e);
+            }
 
             Marshal.ReleaseComObject(excel);
             excel = null;
@@ -51,9 +60,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                     // The document will be gracefully closed and released in the finally block.
                     return (xls != null);
                 }
-                catch
+                catch (Exception e)
                 {
                     // Obviously, in case of any error the instance is not working.
+                    log.Warn("The Excel instance is not working", e);
                     return false;
                 }
                 finally
@@ -67,7 +77,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                         {
                             xls.Close(SaveChanges: false);
                         }
-                        catch { } // Skip any kind of error
+                        catch (Exception e)
+                        {
+                            log.Warn("Exception while closing test document", e);
+                        }
                         finally
                         {
                             Marshal.ReleaseComObject(xls);
@@ -92,6 +105,7 @@ namespace Translated.MateCAT.WinConverter.Converters
                 // Ensure Excel instance is working
                 if (!IsExcelWorking())
                 {
+                    log.Info("Excel instance not working properly: restarting");
                     DestroyExcelInstance();
                     CreateExcelInstance();
                 }
@@ -100,10 +114,17 @@ namespace Translated.MateCAT.WinConverter.Converters
                 try
                 {
                     // Open the file
-                    xls = excel.Workbooks.Open(Filename: sourceFilePath, ReadOnly: true);
+                    try
+                    {
+                        xls = excel.Workbooks.Open(Filename: sourceFilePath, ReadOnly: true);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new BrokenSourceException("Exception opening source file.", e);
+                    }
                     if (xls == null)
                     {
-                        throw new Exception("FileConverter could not open the file.");
+                        throw new BrokenSourceException("Source file opened is null.");
                     }
 
                     // Select the target format
@@ -132,11 +153,18 @@ namespace Translated.MateCAT.WinConverter.Converters
                             throw new Exception("Unexpected target format");
                     }
 
-                    // Save the file in the target format
-                    xls.SaveAs(
-                        Filename: targetFilePath, 
-                        FileFormat: msOfficeTargetFormat, 
-                        ConflictResolution: XlSaveConflictResolution.xlLocalSessionChanges);
+                    try
+                    {
+                        // Save the file in the target format
+                        xls.SaveAs(
+                            Filename: targetFilePath, 
+                            FileFormat: msOfficeTargetFormat, 
+                            ConflictResolution: XlSaveConflictResolution.xlLocalSessionChanges);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ConversionException("Conversion exception.", e);
+                    }
 
                     // Everything ok, return the success to the caller
                     return true;
@@ -152,7 +180,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                         {
                             xls.Close(SaveChanges: false);
                         }
-                        catch { }
+                        catch (Exception e)
+                        {
+                            log.Warn("Exception while closing the source document", e);
+                        }
                         finally
                         {
                             Marshal.ReleaseComObject(xls);

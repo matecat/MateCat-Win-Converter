@@ -3,11 +3,15 @@ using System;
 using System.Linq;
 using System.Runtime.InteropServices;
 using Translated.MateCAT.WinConverter.ConversionServer;
+using log4net;
+using static System.Reflection.MethodBase;
 
 namespace Translated.MateCAT.WinConverter.Converters
 {
     public class PowerPointConverter : IConverter, IDisposable
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         private static int[] supportedFormats = { (int)FileTypes.ppt, (int)FileTypes.pps, (int)FileTypes.pot, (int)FileTypes.pptx, (int)FileTypes.pptm, (int)FileTypes.ppsx, (int)FileTypes.ppsm, (int)FileTypes.potx, (int)FileTypes.potm };
 
         private readonly object lockObj = new object();
@@ -24,6 +28,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         {
             // Start Powerpoint
             powerPoint = new Application();
+            log.Info("PowerPoint instance started");
             // Setting the Visible property like Word and Excel causes an exception.
             // The PowerPoint visibility is controlled using a parameter in the
             // document's open method.
@@ -35,8 +40,12 @@ namespace Translated.MateCAT.WinConverter.Converters
             try
             {
                 powerPoint.Quit();
+                log.Info("PowerPoint instance destroyed");
             }
-            catch { } // Ignore every exception
+            catch (Exception e)
+            {
+                log.Warn("Exception while closing PowerPoint instance: check that the instance is properly closed", e);
+            }
 
             Marshal.ReleaseComObject(powerPoint);
             powerPoint = null;
@@ -55,9 +64,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                     // The document will be gracefully closed and released in the finally block.
                     return (ppt != null);
                 }
-                catch
+                catch (Exception e)
                 {
                     // Obviously, in case of any error the instance is not working.
+                    log.Warn("The PowerPoint instance is not working", e);
                     return false;
                 }
                 finally
@@ -71,7 +81,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                         {
                             ppt.Close();
                         }
-                        catch { } // Skip any kind of error
+                        catch (Exception e)
+                        {
+                            log.Warn("Exception while closing test document", e);
+                        }
                         finally
                         {
                             Marshal.ReleaseComObject(ppt);
@@ -96,6 +109,7 @@ namespace Translated.MateCAT.WinConverter.Converters
                 // Ensure PowerPoint instance is working
                 if (!IsPowerPointWorking())
                 {
+                    log.Info("Word instance not working properly: restarting");
                     DestroyPowerPointInstance();
                     CreatePowerPointInstance();
                 }
@@ -104,10 +118,20 @@ namespace Translated.MateCAT.WinConverter.Converters
                 try
                 {
                     // Open the file
-                    ppt = powerPoint.Presentations.Open(FileName: sourceFilePath, ReadOnly: Microsoft.Office.Core.MsoTriState.msoTrue, WithWindow: Microsoft.Office.Core.MsoTriState.msoFalse);
+                    try
+                    {
+                        ppt = powerPoint.Presentations.Open(
+                            FileName: sourceFilePath, 
+                            ReadOnly: Microsoft.Office.Core.MsoTriState.msoTrue, 
+                            WithWindow: Microsoft.Office.Core.MsoTriState.msoFalse);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new BrokenSourceException("Exception opening source file.", e);
+                    }
                     if (ppt == null)
                     {
-                        throw new Exception("FileConverter could not open the file.");
+                        throw new BrokenSourceException("Source file opened is null.");
                     }
 
                     // Select the target format
@@ -145,8 +169,15 @@ namespace Translated.MateCAT.WinConverter.Converters
                             throw new Exception("Unexpected target format");
                     }
 
-                    // Save the file in the target format
-                    ppt.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
+                    try
+                    {
+                        // Save the file in the target format
+                        ppt.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ConversionException("Conversion exception.", e);
+                    }
 
                     // Everything ok, return the success to the caller
                     return true;
@@ -159,7 +190,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                         {
                             ppt.Close();
                         }
-                        catch { }
+                        catch (Exception e)
+                        {
+                            log.Warn("Exception while closing the source document", e);
+                        }
                         finally
                         {
                             Marshal.ReleaseComObject(ppt);

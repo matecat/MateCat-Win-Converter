@@ -3,11 +3,15 @@ using System;
 using System.Runtime.InteropServices;
 using System.Linq;
 using Translated.MateCAT.WinConverter.ConversionServer;
+using log4net;
+using static System.Reflection.MethodBase;
 
 namespace Translated.MateCAT.WinConverter.Converters
 {
     public class WordConverter : IConverter, IDisposable
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         private static int[] supportedFormats = { (int)FileTypes.doc, (int)FileTypes.dot, (int)FileTypes.docx, (int)FileTypes.docm, (int)FileTypes.dotx, (int)FileTypes.dotm, (int)FileTypes.rtf };
 
         private readonly object lockObj = new object();
@@ -23,6 +27,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         private void CreateWordInstance()
         {
             word = new Application();
+            log.Info("Word instance started");
             word.Visible = false;
             word.DisplayAlerts = WdAlertLevel.wdAlertsNone;
         }
@@ -32,8 +37,12 @@ namespace Translated.MateCAT.WinConverter.Converters
             try
             {
                 word.Quit(SaveChanges: false);
+                log.Info("Word instance destroyed");
             }
-            catch { } // Ignore every exception
+            catch (Exception e)
+            {
+                log.Warn("Exception while closing Word instance: check that the instance is properly closed", e);
+            }
 
             Marshal.ReleaseComObject(word);
             word = null;
@@ -51,9 +60,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                     // The document will be gracefully closed and released in the finally block.
                     return (doc != null);
                 }
-                catch
+                catch (Exception e)
                 {
                     // Obviously, in case of any error the instance is not working.
+                    log.Warn("The Word instance is not working", e);
                     return false;
                 }
                 finally
@@ -92,6 +102,7 @@ namespace Translated.MateCAT.WinConverter.Converters
                 // Ensure Word instance is working
                 if (!IsWordWorking())
                 {
+                    log.Info("Word instance not working properly: restarting");
                     DestroyWordInstance();
                     CreateWordInstance();
                 }
@@ -100,10 +111,17 @@ namespace Translated.MateCAT.WinConverter.Converters
                 try
                 {
                     // Open the file
-                    doc = word.Documents.Open(FileName: sourceFilePath, ReadOnly: true);
+                    try
+                    {
+                        doc = word.Documents.Open(FileName: sourceFilePath, ReadOnly: true);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new BrokenSourceException("Exception opening source file.", e);
+                    }
                     if (doc == null)
                     {
-                        throw new Exception("FileConverter could not open the file.");
+                        throw new BrokenSourceException("Source file opened is null.");
                     }
 
                     // Select the target format
@@ -135,9 +153,16 @@ namespace Translated.MateCAT.WinConverter.Converters
                             throw new Exception("Unexpected target format");
                     }
 
-                    // Save the file in the target format
-                    doc.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
-                    
+                    try
+                    {
+                        // Save the file in the target format
+                        doc.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
+                    }
+                    catch (Exception e)
+                    {
+                        throw new ConversionException("Conversion exception.", e);
+                    }
+
                     // Everything ok, return the success to the caller
                     return true;
                 }
@@ -152,7 +177,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                         {
                             doc.Close(SaveChanges: false);
                         }
-                        catch { }
+                        catch (Exception e)
+                        {
+                            log.Warn("Exception while closing the source document", e);
+                        }
                         finally
                         {
                             Marshal.ReleaseComObject(doc);

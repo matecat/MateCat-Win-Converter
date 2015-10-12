@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using log4net;
+using static System.Reflection.MethodBase;
 
 namespace Translated.MateCAT.WinConverter.Converters
 {
     public class ConvertersRouter : IConverter, IDisposable
     {
+        private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
+
         private readonly IList<IConverter> converters;
 
         private bool disposed = false;

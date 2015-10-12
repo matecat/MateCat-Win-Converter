@@ -1,19 +1,15 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Translated.MateCAT.WinConverter.ConversionServer
 {
     public class ProtocolException : Exception
     {
-        public readonly StatusCodes ErrorCode;
+        public readonly StatusCodes statusCode;
 
-        public ProtocolException(StatusCodes errorCode, Exception innerException)
-            : base("Exception " + (int)errorCode + ": " + errorCode, innerException)
+        public ProtocolException(StatusCodes statusCode, Exception innerException)
+            : base("Exception " + (int)statusCode + ": " + statusCode, innerException)
         {
-            this.ErrorCode = errorCode;
+            this.statusCode = statusCode;
         }
 
         public ProtocolException(StatusCodes errorCode) 
