@@ -79,6 +79,13 @@ namespace Translated.MateCAT.WinConverter.Converters
         }
 
         [TestMethod]
+        [DeploymentItem(advancedDocxFile, testFilesFolder)]
+        public void AdvancedDOCXtoDOC()
+        {
+            TestConversion(converter, advancedDocxFile, FileTypes.docx, FileTypes.doc, true);
+        }
+
+        [TestMethod]
         [DeploymentItem(brokenDocxFile, testFilesFolder)]
         [ExpectedException(typeof(BrokenSourceException))]
         public void BrokenDOCXtoDOC()

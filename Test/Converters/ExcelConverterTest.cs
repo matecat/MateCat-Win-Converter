@@ -67,6 +67,13 @@ namespace Translated.MateCAT.WinConverter.Converters
         }
 
         [TestMethod]
+        [DeploymentItem(advancedXlsxFile, testFilesFolder)]
+        public void AdvancedXLSXtoXLS()
+        {
+            TestConversion(converter, advancedXlsxFile, FileTypes.xlsx, FileTypes.xls, true);
+        }
+
+        [TestMethod]
         [DeploymentItem(brokenXlsxFile, testFilesFolder)]
         [ExpectedException(typeof(BrokenSourceException))]
         public void BrokenXLSXtoXLS()

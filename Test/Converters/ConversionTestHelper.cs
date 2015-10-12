@@ -40,6 +40,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         public const string xlsmFile = testFilesFolder + "\\source.xlsm";
 
         public const string brokenXlsxFile = testFilesFolder + "\\broken.xlsx";
+        public const string advancedXlsxFile = testFilesFolder + "\\source_advanced.xlsx";
 
         public const string xltxFile = testFilesFolder + "\\source.xltx";
         public const string xltmFile = testFilesFolder + "\\source.xltm";
@@ -54,6 +55,7 @@ namespace Translated.MateCAT.WinConverter.Converters
         public const string pptmFile = testFilesFolder + "\\source.pptm";
 
         public const string brokenPptxFile = testFilesFolder + "\\broken.pptx";
+        public const string advancedPptxFile = testFilesFolder + "\\source_advanced.pptx";
 
         public const string ppsxFile = testFilesFolder + "\\source.ppsx";
         public const string ppsmFile = testFilesFolder + "\\source.ppsm";
