@@ -52,7 +52,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 serverSocket.Bind(endPoint);
                 serverSocket.Listen(queueSize);
 
-                log.Info("Server started, listening on port " + port);
+                log.Info("server started, listening on port " + port);
 
                 running = true;
                 stopped = false;
@@ -68,6 +68,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                     if (serverSocket.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
                     {
                         Socket clientSocket = serverSocket.Accept();
+                        log.Info("new request received");
                         ConversionRequest connection = new ConversionRequest(clientSocket, converter);
                         Thread clientThread = new Thread(new ThreadStart(connection.Run));
                         clientThread.Start();
@@ -76,14 +77,14 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             }
             catch (Exception e)
             {
-                log.Error("Exception", e);
+                log.Error("exception", e);
             }
             finally
             {
                 if (serverSocket != null) serverSocket.Close();
                 running = false;
                 stopped = true;
-                log.Info("Server stopped");
+                log.Info("server stopped");
             }
         }
 

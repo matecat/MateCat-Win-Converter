@@ -94,6 +94,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 socket.Connect(testEndPoint);
 
                 // Send inputs
+                SendInt(socket, 1); // Conversion ID
                 SendInt(socket, sourceFileType);
                 SendInt(socket, targetFileType);
                 SendInt(socket, fileSize);

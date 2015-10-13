@@ -29,8 +29,6 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             int bytesRead, bytesSent;
             byte[] buffer = new byte[BufferSize];
 
-            log.Info("new request received");
-
             TempFolder tempFolder = null;
             string sourceFilePath = null;
             FileStream sourceFileStream = null;
@@ -39,6 +37,12 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
             try
             {
+                // 1) Read the conversion ID
+
+                int id = ReceiveInt();
+                log.Info("received conversion id: " + id);
+
+
                 // 1) Read the source file type
 
                 int sourceFileTypeValue = ReceiveInt();
