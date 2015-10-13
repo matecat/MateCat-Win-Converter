@@ -1,5 +1,7 @@
-﻿using System.Configuration;
+﻿using System;
+using System.Configuration;
 using System.IO;
+using System.Linq;
 
 namespace Translated.MateCAT.WinConverter.Utils
 {
@@ -24,20 +26,25 @@ namespace Translated.MateCAT.WinConverter.Utils
 
         private readonly string dir;
 
-        public TempFolder()
+        public TempFolder(int conversionId)
         {
             // This class will be heavily used in a threaded environment,
             // be careful and make it thread safe
             lock (fileSystemLock)
             {
-                do
+                dir = rootTmpFolder + conversionId + Path.DirectorySeparatorChar;
+
+                int duplicates = 0;
+                while (Directory.Exists(dir))
                 {
-                    dir = rootTmpFolder + Path.GetRandomFileName() + Path.DirectorySeparatorChar;
+                    duplicates++;
+                    dir = rootTmpFolder + conversionId + " (" + duplicates + ")" + Path.DirectorySeparatorChar;
                 }
-                while (Directory.Exists(dir));
                 Directory.CreateDirectory(dir);
             }
         }
+
+        public TempFolder() : this((new Random()).Next()) { }
 
         public string getFilePath(string filename)
         {

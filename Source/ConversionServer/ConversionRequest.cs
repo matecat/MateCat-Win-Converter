@@ -35,12 +35,14 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             string targetFilePath = null;
             FileStream targetFileStream = null;
 
+            bool everythingOk = false;
+
             try
             {
                 // 1) Read the conversion ID
 
-                int id = ReceiveInt();
-                log.Info("received conversion id: " + id);
+                int conversionId = ReceiveInt();
+                log.Info("received conversion id: " + conversionId);
 
 
                 // 1) Read the source file type
@@ -76,7 +78,9 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
                 // 4) Read the source file and cache it on disk
 
-                tempFolder = new TempFolder();
+                tempFolder = new TempFolder(conversionId);
+                log.Info("created temp folder " + tempFolder.ToString());
+
                 sourceFilePath = tempFolder.getFilePath("source." + sourceFileType);
                 sourceFileStream = new FileStream(sourceFilePath, FileMode.Create);
                 int totalBytesRead = 0;
@@ -154,26 +158,22 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 targetFileStream.Close();
 
                 // If execution arrives here, everything went well!
-            }
-            catch (ProtocolException e)
-            {
-                try
-                {
-                    log.Error("Protocol exception", e);
-                    SendInt((int)e.statusCode);
-                    log.Info("sent status code: " + (int)e.statusCode + " (" + e.statusCode + ")");
-                }
-                catch { }
+                everythingOk = true;
             }
             catch (Exception e)
             {
-                log.Error("General Exception", e);
+                log.Error("exception", e);
+                StatusCodes statusCode = (e is ProtocolException ? ((ProtocolException)e).statusCode : StatusCodes.InternalServerError);
+                string statusCodeDescription = "status code " + (int)statusCode + " (" + statusCode + ")";
                 try
                 {
-                    SendInt((int)StatusCodes.InternalServerError);
-                    log.Info("sent status code: " + (int)StatusCodes.InternalServerError + " (" + StatusCodes.InternalServerError + ")");
+                    SendInt((int)statusCode);
+                    log.Info("sent " + statusCodeDescription);
                 }
-                catch { }
+                catch (Exception ee)
+                {
+                    log.Warn("exception while sending " + statusCodeDescription, ee);
+                }
             }
             finally
             {
@@ -181,14 +181,17 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 if (sourceFileStream != null) sourceFileStream.Close();
                 if (targetFileStream != null) targetFileStream.Close();
                 
-                // Delete temp folder
-                if (tempFolder != null)
+                // Delete temp folder, only if everything went well
+                if (everythingOk && tempFolder != null)
                 {
                     try
                     {
                         Directory.Delete(tempFolder.ToString(), true);
                     }
-                    catch { }
+                    catch (Exception e)
+                    {
+                        log.Warn("exception while deleting temp folder", e);
+                    }
                 }
 
                 EndPoint remoteEndPoint = socket.RemoteEndPoint;
