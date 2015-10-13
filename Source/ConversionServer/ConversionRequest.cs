@@ -41,9 +41,9 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             {
                 // 1) Read the source file type
 
-                int fileTypeValue = ReceiveInt();
-                FileTypes sourceFileType = (FileTypes)fileTypeValue;
-                log.Info("received source file type: " + fileTypeValue + " ("+ sourceFileType +")");
+                int sourceFileTypeValue = ReceiveInt();
+                FileTypes sourceFileType = (FileTypes)sourceFileTypeValue;
+                log.Info("received source file type: " + sourceFileTypeValue + " ("+ sourceFileType +")");
                 if (!Enum.IsDefined(typeof(FileTypes), sourceFileType))
                 {
                     throw new ProtocolException(StatusCodes.BadFileType);
@@ -52,9 +52,9 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
                 // 2) Read the target file type
 
-                int outputFileTypeValue = ReceiveInt();
-                FileTypes targetFileType = (FileTypes)outputFileTypeValue;
-                log.Info("received source file type: " + outputFileTypeValue + " (" + targetFileType + ")");
+                int targetFileTypeValue = ReceiveInt();
+                FileTypes targetFileType = (FileTypes)targetFileTypeValue;
+                log.Info("received target file type: " + targetFileTypeValue + " (" + targetFileType + ")");
                 if (!Enum.IsDefined(typeof(FileTypes), targetFileType))
                 {
                     throw new ProtocolException(StatusCodes.BadFileType);
@@ -157,7 +157,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 {
                     log.Error("Protocol exception", e);
                     SendInt((int)e.statusCode);
-                    log.Info("sent status code: " + (int)e.statusCode + "(" + e.statusCode + ")");
+                    log.Info("sent status code: " + (int)e.statusCode + " (" + e.statusCode + ")");
                 }
                 catch { }
             }
@@ -167,7 +167,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 try
                 {
                     SendInt((int)StatusCodes.InternalServerError);
-                    log.Info("sent status code: " + (int)StatusCodes.InternalServerError + "(" + StatusCodes.InternalServerError + ")");
+                    log.Info("sent status code: " + (int)StatusCodes.InternalServerError + " (" + StatusCodes.InternalServerError + ")");
                 }
                 catch { }
             }
