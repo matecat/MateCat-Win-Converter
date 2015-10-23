@@ -97,8 +97,8 @@ namespace Translated.MateCAT.WinConverter.Converters
                 Assert.IsFalse(converted);
             }
 
-            // Delete the temp file created
-            if (File.Exists(targetFile)) File.Delete(targetFile);
+            // Delete the temp folder created
+            tempFolder.Release();
         }
 
         public static void TestHighConcurrencyConversion(IConverter converter, string sourceFileName, FileTypes sourceFormat, FileTypes targetFormat, int concurrentConversions)
@@ -139,7 +139,7 @@ namespace Translated.MateCAT.WinConverter.Converters
                     finally
                     {
                         // Delete the temp target folder
-                        Directory.Delete(tempFolder.ToString(), true);
+                        tempFolder.Release();
                     }
                 }));
             }

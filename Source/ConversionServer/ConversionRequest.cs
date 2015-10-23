@@ -177,21 +177,14 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             }
             finally
             {
-                // Close streams                
+                // Close streams
                 if (sourceFileStream != null) sourceFileStream.Close();
                 if (targetFileStream != null) targetFileStream.Close();
                 
-                // Delete temp folder, only if everything went well
-                if (everythingOk && tempFolder != null)
+                // Delete temp folder if everything ok, or move it to errors repository
+                if (tempFolder != null)
                 {
-                    try
-                    {
-                        Directory.Delete(tempFolder.ToString(), true);
-                    }
-                    catch (Exception e)
-                    {
-                        log.Warn("exception while deleting temp folder", e);
-                    }
+                    tempFolder.Release(!everythingOk);
                 }
 
                 EndPoint remoteEndPoint = socket.RemoteEndPoint;
