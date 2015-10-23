@@ -48,28 +48,35 @@ namespace Translated.MateCAT.WinConverter.Converters
                 return false;
             }
 
-            // Setup process
             var process = new Process();
-            process.StartInfo.Arguments = "\"" + sourceFilePath + "\" \"" + targetFilePath + "\"";
-            process.StartInfo.FileName = ocrConsolePath;
-            process.StartInfo.CreateNoWindow = true;
-            process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
-            process.StartInfo.UseShellExecute = false;
-            process.StartInfo.RedirectStandardError = true;
-            process.StartInfo.RedirectStandardOutput = true;
-
-            // Execute it
-            process.Start();
-            process.WaitForExit();
-
-            // Check errors
-            if (process.ExitCode != 0)
+            try
             {
-                throw new ConversionException("OCR Console returned exit code " + process.ExitCode);
-            }
+                // Setup process
+                process.StartInfo.Arguments = "\"" + sourceFilePath + "\" \"" + targetFilePath + "\"";
+                process.StartInfo.FileName = ocrConsolePath;
+                process.StartInfo.CreateNoWindow = true;
+                process.StartInfo.WindowStyle = ProcessWindowStyle.Hidden;
+                process.StartInfo.UseShellExecute = false;
+                process.StartInfo.RedirectStandardError = true;
+                process.StartInfo.RedirectStandardOutput = true;
 
-            // Everything ok, return the success to the caller        
-            return true;
+                // Execute it
+                process.Start();
+                process.WaitForExit();
+
+                // Check errors
+                if (process.ExitCode != 0)
+                {
+                    throw new ConversionException("OCR Console returned exit code " + process.ExitCode);
+                }
+
+                // Everything ok, return the success to the caller        
+                return true;
+            }
+            finally
+            {
+                process.Close();
+            }
         }
 
         public static bool IsInstalled()
