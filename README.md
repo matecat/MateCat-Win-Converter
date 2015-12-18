@@ -1,4 +1,4 @@
-<p align="center"><img src="http://i.imgur.com/4I1uX0a.png"></p>
+<p align="center"><img src="http://i.imgur.com/o7gUQ7G.png"></p>
 
 # MateCat Win Converter
 
