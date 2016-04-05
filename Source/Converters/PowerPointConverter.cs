@@ -33,6 +33,7 @@ namespace Translated.MateCAT.WinConverter.Converters
             // The PowerPoint visibility is controlled using a parameter in the
             // document's open method.
             powerPoint.DisplayAlerts = PpAlertLevel.ppAlertsNone;
+            powerPoint.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable;
         }
 
         private void DestroyPowerPointInstance()
@@ -120,10 +121,11 @@ namespace Translated.MateCAT.WinConverter.Converters
                     // Open the file
                     try
                     {
-                        ppt = powerPoint.Presentations.Open(
+                        ppt = powerPoint.Presentations.Open2007(
                             FileName: sourceFilePath, 
                             ReadOnly: Microsoft.Office.Core.MsoTriState.msoTrue, 
-                            WithWindow: Microsoft.Office.Core.MsoTriState.msoFalse);
+                            WithWindow: Microsoft.Office.Core.MsoTriState.msoFalse,
+                            OpenAndRepair: Microsoft.Office.Core.MsoTriState.msoTrue);
                     }
                     catch (Exception e)
                     {
