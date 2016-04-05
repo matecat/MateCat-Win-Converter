@@ -28,8 +28,21 @@ namespace Translated.MateCAT.WinConverter.Converters
         {
             excel = new Application();
             log.Info("Excel instance started");
+
+            excel.MergeInstances = false;
+
             excel.Visible = false;
+            // Some additional tweaks (see http://goo.gl/CV0VlM)
+            excel.Interactive = false;
+            excel.ScreenUpdating = false;
+
             excel.DisplayAlerts = false;
+            excel.DisplayInfoWindow = false;
+            excel.AskToUpdateLinks = false;
+          
+            // Disable macros
+            excel.EnableEvents = false;
+            excel.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable;
         }
 
         private void DestroyExcelInstance()
@@ -116,7 +129,8 @@ namespace Translated.MateCAT.WinConverter.Converters
                     // Open the file
                     try
                     {
-                        xls = excel.Workbooks.Open(Filename: sourceFilePath, ReadOnly: true);
+                        xls = excel.Workbooks.Open(Filename: sourceFilePath, UpdateLinks: XlUpdateLinks.xlUpdateLinksNever, 
+                            ReadOnly: true, Password: "-", IgnoreReadOnlyRecommended: true, CorruptLoad: XlCorruptLoad.xlRepairFile);
                     }
                     catch (Exception e)
                     {
@@ -156,6 +170,10 @@ namespace Translated.MateCAT.WinConverter.Converters
                     try
                     {
                         // Save the file in the target format
+                        xls.DoNotPromptForConvert = true;
+                        xls.CheckCompatibility = false;
+                        xls.UpdateLinks = XlUpdateLinks.xlUpdateLinksNever;
+                        xls.UpdateRemoteReferences = false;
                         xls.SaveAs(
                             Filename: targetFilePath, 
                             FileFormat: msOfficeTargetFormat, 
