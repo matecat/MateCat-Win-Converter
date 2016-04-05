@@ -30,6 +30,8 @@ namespace Translated.MateCAT.WinConverter.Converters
             log.Info("Word instance started");
             word.Visible = false;
             word.DisplayAlerts = WdAlertLevel.wdAlertsNone;
+            word.ScreenUpdating = false;
+            word.AutomationSecurity = Microsoft.Office.Core.MsoAutomationSecurity.msoAutomationSecurityForceDisable;
         }
 
         private void DestroyWordInstance()
@@ -113,7 +115,9 @@ namespace Translated.MateCAT.WinConverter.Converters
                     // Open the file
                     try
                     {
-                        doc = word.Documents.Open(FileName: sourceFilePath, ReadOnly: true);
+                        doc = word.Documents.Open(FileName: sourceFilePath, ConfirmConversions: false, ReadOnly: true, 
+                            PasswordDocument: "-", PasswordTemplate: "-", WritePasswordDocument: "-", WritePasswordTemplate: "-",
+                            Visible: false, OpenAndRepair: true, NoEncodingDialog: true);
                     }
                     catch (Exception e)
                     {
@@ -156,7 +160,7 @@ namespace Translated.MateCAT.WinConverter.Converters
                     try
                     {
                         // Save the file in the target format
-                        doc.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat);
+                        doc.SaveAs(FileName: targetFilePath, FileFormat: msOfficeTargetFormat, AddBiDiMarks: true);
                     }
                     catch (Exception e)
                     {
