@@ -6,6 +6,7 @@ using System.Net.Sockets;
 using static System.Reflection.MethodBase;
 using Translated.MateCAT.WinConverter.Converters;
 using Translated.MateCAT.WinConverter.Utils;
+using System.Threading;
 
 namespace Translated.MateCAT.WinConverter.ConversionServer
 {
@@ -18,11 +19,13 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
         private readonly Socket socket;
         private readonly IConverter fileConverter;
+        private readonly ConversionServer.Counter serverConnectionsCounter;
 
-        public ConversionRequest(Socket socket, IConverter fileConverter)
+        public ConversionRequest(Socket socket, IConverter fileConverter, ConversionServer.Counter serverConnections)
         {
             this.socket = socket;
             this.fileConverter = fileConverter;
+            this.serverConnectionsCounter = serverConnections;
         }
 
         public void Run()
@@ -223,6 +226,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 socket.Shutdown(SocketShutdown.Both);
                 socket.Close();
                 if (!healthCheck) log.Info("connection closed");
+                Interlocked.Decrement(ref serverConnectionsCounter.value);
             }
         }
 

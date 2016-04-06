@@ -14,12 +14,15 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
         private const int SocketPollMicroseconds = 250000;
 
-        private int port;
-        private int queueSize;
-        private IConverter converter;
+        private readonly int port;
+        private readonly int queueSize;
+        private readonly IConverter converter;
 
         private bool running = false;
         private bool stopped = true;
+
+        public class Counter { public int value = 0; }
+        private Counter connectionsCounter = new Counter();
 
         public ConversionServer(int port, int queueSize, IConverter converter)
         {
@@ -68,7 +71,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                     if (serverSocket.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
                     {
                         Socket clientSocket = serverSocket.Accept();
-                        ConversionRequest connection = new ConversionRequest(clientSocket, converter);
+                        Interlocked.Increment(ref connectionsCounter.value);
+                        ConversionRequest connection = new ConversionRequest(clientSocket, converter, connectionsCounter);
                         Thread clientThread = new Thread(new ThreadStart(connection.Run));
                         clientThread.Start();
                     }
@@ -83,7 +87,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 if (serverSocket != null) serverSocket.Close();
                 running = false;
                 stopped = true;
-                log.Info("server stopped");
+                log.Info("server stopped ("+ connectionsCounter.value + " connections still open)");
             }
         }
 
