@@ -27,9 +27,6 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
         public void Run()
         {
-            socket.ReceiveTimeout = SocketTimeout;
-            socket.SendTimeout = SocketTimeout;
-
             bool healthCheck = false;
 
             int bytesRead, bytesSent;
@@ -45,6 +42,10 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
             try
             {
+                // Set socket timeouts
+                socket.ReceiveTimeout = SocketTimeout;
+                socket.SendTimeout = SocketTimeout;
+
                 // 1) Read the conversion ID
 
                 int conversionId;
