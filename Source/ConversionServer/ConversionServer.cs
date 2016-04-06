@@ -61,14 +61,13 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 {
                     // Calling socket.Accept blocks the thread until the next incoming connection,
                     // making difficult to stop the server from another thread.
-                    // The Poll always returns after the specified delay elapsed, or immeidately
+                    // The Poll always returns after the specified delay elapsed, or immediately
                     // returns if it detects an incoming connection. It's the perfect method
-                    // to make this loop regularly che the running var, ending gracefully 
+                    // to make this loop regularly check the running var, ending gracefully 
                     // if requested.
                     if (serverSocket.Poll(SocketPollMicroseconds, SelectMode.SelectRead))
                     {
                         Socket clientSocket = serverSocket.Accept();
-                        log.Info("new request received");
                         ConversionRequest connection = new ConversionRequest(clientSocket, converter);
                         Thread clientThread = new Thread(new ThreadStart(connection.Run));
                         clientThread.Start();

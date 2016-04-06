@@ -13,7 +13,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
     {
         private static readonly ILog log = LogManager.GetLogger(GetCurrentMethod().DeclaringType);
 
-        public const int BufferSize = 8192;
+        public const int BufferSize = 10*1024*1024; // 10 MB
+        public const int SocketTimeout = 5000; // in milliseconds
 
         private readonly Socket socket;
         private readonly IConverter fileConverter;
@@ -26,6 +27,11 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
         public void Run()
         {
+            socket.ReceiveTimeout = SocketTimeout;
+            socket.SendTimeout = SocketTimeout;
+
+            bool healthCheck = false;
+
             int bytesRead, bytesSent;
             byte[] buffer = new byte[BufferSize];
 
@@ -41,7 +47,33 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             {
                 // 1) Read the conversion ID
 
-                int conversionId = ReceiveInt();
+                int conversionId;
+                try
+                {
+                    conversionId = ReceiveInt();
+                }
+                catch (SocketException e)
+                {
+                    if (e.NativeErrorCode == 10060)
+                    {
+                        // This block handles the special case of an external service performing
+                        // an health check on this server. The external service can just try to
+                        // open a TCP connection, without sending anything. The simple fact that
+                        // the server accepted the connection guarantees it is working.
+                        // So if someone opens a TCP connection and doesn't send nothing, I fail
+                        // gracefully. A socket exception with error code 10060 means socket
+                        // timeout: I assume it is a health check.
+                        healthCheck = true;
+                        everythingOk = true;
+                        return;
+                    }
+                    else
+                    {
+                        // In case of any other exception than socket timeout, throw the exception
+                        // again to handle it regularly.
+                        throw e;
+                    }
+                }
                 log.Info("received conversion id: " + conversionId);
 
 
@@ -187,12 +219,9 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                     tempFolder.Release(!everythingOk);
                 }
 
-                EndPoint remoteEndPoint = socket.RemoteEndPoint;
                 socket.Shutdown(SocketShutdown.Both);
-                // Wait that client closes connection
-                //socket.Receive(new byte[1], SocketFlags.Peek);
                 socket.Close();
-                log.Info("connection closed");
+                if (!healthCheck) log.Info("connection closed");
             }
         }
 
@@ -200,17 +229,20 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
         {
             byte[] buffer = new byte[4];
             int bytesRead = socket.Receive(buffer, sizeof(int), 0);
-            // The "network" value
-            int netValue = BitConverter.ToInt32(buffer, 0);
-            // The "windows" value
-            int winValue = IPAddress.NetworkToHostOrder(netValue);
-            return winValue;
+
+            // Pay attention to endianess
+            int networkValue = BitConverter.ToInt32(buffer, 0);
+            int realValue = IPAddress.NetworkToHostOrder(networkValue);
+
+            return realValue;
         }
 
         private void SendInt(int value)
         {
-            int netValue = IPAddress.HostToNetworkOrder(value);
-            byte[] buffer = BitConverter.GetBytes(netValue);
+            // Pay attention to endianess
+            int networkValue = IPAddress.HostToNetworkOrder(value);
+
+            byte[] buffer = BitConverter.GetBytes(networkValue);
             int bytesSent = socket.Send(buffer, sizeof(int), 0);
         }
     }
