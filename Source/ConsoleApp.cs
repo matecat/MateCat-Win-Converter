@@ -1,5 +1,6 @@
 ﻿using log4net;
 using log4net.Config;
+using NCrontab;
 using System;
 using System.Configuration;
 using System.Threading;
@@ -26,7 +27,7 @@ namespace Translated.MateCAT.WinConverter
             // The socket's queue size for incoming connections (see https://goo.gl/IIFY20)
             int queue = int.Parse(ConfigurationManager.AppSettings.Get("QueueSize"));
             int convertersPoolSize = int.Parse(ConfigurationManager.AppSettings.Get("ConvertersPoolSize"));
-            int restartTimeout = int.Parse(ConfigurationManager.AppSettings.Get("SystemRestartTimeout"));
+            string restartCronExpr = ConfigurationManager.AppSettings.Get("SystemRestartCron");
 
             // Greet the user and recap params
             Console.WriteLine("MateCAT WinConverter!");
@@ -36,14 +37,17 @@ namespace Translated.MateCAT.WinConverter
             log.Info("MateCAT WinConverter is starting");
 
             // Set system restart timer, if configured
-            if (restartTimeout > 0)
+            if (!String.IsNullOrWhiteSpace(restartCronExpr))
             {
+                CrontabSchedule restartCron = CrontabSchedule.Parse(restartCronExpr);
+                DateTime restartDate = restartCron.GetNextOccurrence(DateTime.Now);
+
                 System.Timers.Timer restartTimer = new System.Timers.Timer();
                 restartTimer.Elapsed += new ElapsedEventHandler(SystemRestart);
-                restartTimer.Interval = restartTimeout * 60 * 1000; // Convert minutes to milliseconds
+                restartTimer.Interval = (int)(restartDate - DateTime.Now).TotalMilliseconds;
                 restartTimer.AutoReset = false;
                 restartTimer.Enabled = true;
-                log.Info("System restart timer enabled: waiting " + restartTimeout + " minutes");
+                log.Info("Auto restart enabled: will restart at "+ restartDate.ToShortTimeString() + " of "+ restartDate.ToShortDateString());
             }
 
             // Create the main conversion class
