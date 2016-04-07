@@ -30,8 +30,6 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
         public void Run()
         {
-            bool healthCheck = false;
-
             int bytesRead, bytesSent;
             byte[] buffer = new byte[BufferSize];
 
@@ -41,6 +39,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             string targetFilePath = null;
             FileStream targetFileStream = null;
 
+            bool healthCheck = false;
             bool everythingOk = false;
 
             try
@@ -51,32 +50,15 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
                 // 1) Read the conversion ID
 
-                int conversionId;
-                try
+                int conversionId = ReceiveInt();
+                if (conversionId == 0)
                 {
-                    conversionId = ReceiveInt();
-                }
-                catch (SocketException e)
-                {
-                    if (e.NativeErrorCode == 10060)
-                    {
-                        // This block handles the special case of an external service performing
-                        // an health check on this server. The external service can just try to
-                        // open a TCP connection, without sending anything. The simple fact that
-                        // the server accepted the connection guarantees it is working.
-                        // So if someone opens a TCP connection and doesn't send nothing, I fail
-                        // gracefully. A socket exception with error code 10060 means socket
-                        // timeout: I assume it is a health check.
-                        healthCheck = true;
-                        everythingOk = true;
-                        return;
-                    }
-                    else
-                    {
-                        // In case of any other exception than socket timeout, throw the exception
-                        // again to handle it regularly.
-                        throw e;
-                    }
+                    // The first 4 bytes in the connection were zeroes: this is
+                    // the case of an external service performing an health check.
+                    // Don't log anything and release the connection.
+                    healthCheck = true;
+                    everythingOk = true;
+                    return;
                 }
                 log.Info("received conversion id: " + conversionId);
 
