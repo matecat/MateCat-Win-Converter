@@ -29,7 +29,8 @@ namespace Translated.MateCAT.WinConverter.Converters
             excel = new Application();
             log.Info("Excel instance started");
 
-            excel.MergeInstances = false;
+            // DON'T USE: works perfectly with Office 2013, but crashes with 2010
+            //excel.MergeInstances = false;
 
             excel.Visible = false;
             // Some additional tweaks (see http://goo.gl/CV0VlM)
