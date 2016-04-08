@@ -105,7 +105,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 log.Info("receiving source file...");
                 while (totalBytesRead < fileSize)
                 {
-                    bytesRead = socket.Receive(buffer, BufferSize, 0);
+                    bytesRead = socket.Receive(buffer, Math.Min(BufferSize, fileSize - totalBytesRead), 0);
                     sourceFileStream.Write(buffer, 0, bytesRead);
                     totalBytesRead += bytesRead;
                 }
@@ -126,7 +126,7 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 }
                 catch (ConversionException e)
                 {
-                    throw new ProtocolException(StatusCodes.ConversionError, e);
+                    throw new ProtocolException(StatusCodes.InternalServerError, e);
                 }
                 if (!converted)
                 {
@@ -214,23 +214,28 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
         private int ReceiveInt()
         {
-            byte[] buffer = new byte[4];
-            int bytesRead = socket.Receive(buffer, sizeof(int), 0);
+            const int bytesToRead = sizeof(int); // = 4
+            int totalBytesRead = 0;
+            byte[] buffer = new byte[bytesToRead];
+            while (totalBytesRead < bytesToRead)
+            {
+                int bytesRead = socket.Receive(buffer, totalBytesRead, bytesToRead - totalBytesRead, 0);
+                totalBytesRead += bytesRead;
+            }
 
-            // Pay attention to endianess
-            int networkValue = BitConverter.ToInt32(buffer, 0);
-            int realValue = IPAddress.NetworkToHostOrder(networkValue);
+            // Pay attention to endianess: the standard for networking (and for Java) is Big Endian
+            if (BitConverter.IsLittleEndian) Array.Reverse(buffer);
 
-            return realValue;
+            return BitConverter.ToInt32(buffer, 0);
         }
 
         private void SendInt(int value)
         {
-            // Pay attention to endianess
-            int networkValue = IPAddress.HostToNetworkOrder(value);
+            byte[] buffer = BitConverter.GetBytes(value);
+            // Pay attention to endianess: the standard for networking (and for Java) is Big Endian
+            if (BitConverter.IsLittleEndian) Array.Reverse(buffer);
 
-            byte[] buffer = BitConverter.GetBytes(networkValue);
-            int bytesSent = socket.Send(buffer, sizeof(int), 0);
+            int bytesSent = socket.Send(buffer);
         }
     }
 }

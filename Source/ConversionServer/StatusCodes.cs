@@ -7,8 +7,7 @@
         BadFileSize,
         BrokenSourceFile,
         ConvertedFileTooBig,
-        ConversionError,
         InternalServerError,
-        UnsupportedConversion // => 7
+        UnsupportedConversion // => 6
     }
 }
