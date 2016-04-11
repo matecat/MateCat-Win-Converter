@@ -73,8 +73,9 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                         Socket clientSocket = serverSocket.Accept();
                         Interlocked.Increment(ref connectionsCounter.value);
                         ConversionRequest connection = new ConversionRequest(clientSocket, converter, connectionsCounter);
-                        Thread clientThread = new Thread(new ThreadStart(connection.Run));
-                        clientThread.Start();
+                        // Creating a single thread for every connection has huge costs,
+                        // so I leverage the .NET internal thread pool
+                        ThreadPool.QueueUserWorkItem(connection.Run);
                     }
                 }
             }

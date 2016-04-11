@@ -1,7 +1,6 @@
 ﻿using log4net;
 using System;
 using System.IO;
-using System.Net;
 using System.Net.Sockets;
 using static System.Reflection.MethodBase;
 using Translated.MateCAT.WinConverter.Converters;
@@ -25,11 +24,15 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
         {
             this.socket = socket;
             this.fileConverter = fileConverter;
-            this.serverConnectionsCounter = serverConnections;
+            serverConnectionsCounter = serverConnections;
         }
 
-        public void Run()
+        public void Run(object stateInfo)
         {
+            if (!socket.Connected) throw new InvalidOperationException("Socket is not connected!");
+
+            int totalTime = Environment.TickCount;
+
             int bytesRead, bytesSent;
             byte[] buffer = new byte[BufferSize];
 
@@ -49,13 +52,18 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 socket.SendTimeout = SocketTimeout;
 
                 // 1) Read the conversion ID
-
-                int conversionId = ReceiveInt();
-                if (conversionId == 0)
+                int conversionId;
+                try
                 {
-                    // The first 4 bytes in the connection were zeroes: this is
-                    // the case of an external service performing an health check.
-                    // Don't log anything and release the connection.
+                    conversionId = ReceiveInt();
+                }
+                catch (InvalidOperationException)
+                {
+                    // If an external service performs a TCP health check on
+                    // this on this service, it will shutdown the connection
+                    // just after it is accepted by this server. In this catch
+                    // I handle just this special case. Don't log anything,
+                    // just return successfully.
                     healthCheck = true;
                     everythingOk = true;
                     return;
@@ -114,6 +122,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
 
 
                 // 5) Convert the source file
+                log.Info("converting file...");
+                int conversionTime = Environment.TickCount;
                 bool converted = false;
                 try
                 {
@@ -132,6 +142,8 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 {
                     throw new ProtocolException(StatusCodes.UnsupportedConversion);
                 }
+                conversionTime = Environment.TickCount - conversionTime;
+                log.Info("file converted");
 
 
                 // 6) Send back the ok status code
@@ -160,23 +172,19 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
                 buffer = new byte[BufferSize];
                 targetFileStream = new FileStream(targetFilePath, FileMode.Open);
                 log.Info("sending target file...");
-                while (true)
+                while ((bytesRead = targetFileStream.Read(buffer, 0, BufferSize)) > 0)
                 {
-                    bytesRead = targetFileStream.Read(buffer, 0, BufferSize);
-                    if (bytesRead == 0)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        bytesSent = socket.Send(buffer, bytesRead, 0);
-                    }
+                    bytesSent = socket.Send(buffer, bytesRead, 0);
                 }
                 log.Info("target file sent");
                 targetFileStream.Close();
 
                 // If execution arrives here, everything went well!
                 everythingOk = true;
+
+                // Log timings
+                totalTime = Environment.TickCount - totalTime;
+                log.Info("timings: total " + totalTime / 1000 + "s, conversion " + conversionTime / 1000 + "s ("+ (int)(((double)conversionTime / totalTime) * 100) +"%)");
             }
             catch (Exception e)
             {
@@ -220,6 +228,12 @@ namespace Translated.MateCAT.WinConverter.ConversionServer
             while (totalBytesRead < bytesToRead)
             {
                 int bytesRead = socket.Receive(buffer, totalBytesRead, bytesToRead - totalBytesRead, 0);
+                if (bytesRead == 0)
+                {
+                    // Flows enters here if the remote host interrupted the connection 
+                    // (see https://goo.gl/sPrsZf)
+                    throw new InvalidOperationException();
+                }
                 totalBytesRead += bytesRead;
             }
 
