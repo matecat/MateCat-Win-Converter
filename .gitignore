@@ -206,3 +206,18 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+
+### JetBrains template
+# Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio, WebStorm and Rider
+# Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
+
+# whole settings dir
+.idea
+
+# CMake
+cmake-build-*/
+
+# File-based project format
+*.iws
+
