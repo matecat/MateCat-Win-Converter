@@ -4,7 +4,8 @@
 # Retirement
 
 As of **June 2020** this repository is put in read only mode (archived).
-Translated decided to close the sources of the **MateCat Win Converter** project.
+Translated has decided to continue the development of the **MateCat Win Converter** project in a wider context but in-house.
+
 The source herein corresponds to version _1.1.0_.
 
 # MateCat Win Converter
